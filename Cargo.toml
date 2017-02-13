@@ -14,6 +14,6 @@ exclude = [
 
 [dependencies]
 libc = "0.2"
-error-chain = "0.9"
+error-chain = {version = "0.9", default-features = false}
 enum_derive = "0.1"
 custom_derive ="0.1"
