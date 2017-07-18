@@ -48,14 +48,19 @@ fn main() {
     println!("-> Current process priority is {}.", proc_nice());
 }
 
+#[cfg(target_env = "musl")]
+const PRIO_PROCESS: i32 = libc::PRIO_PROCESS;
+#[cfg(not(target_env = "musl"))]
+const PRIO_PROCESS: u32 = libc::PRIO_PROCESS as u32;
+
 fn renice(prio: libc::c_int) -> libc::c_int {
     // This is not proper logic, as it does not drain errno.
-    return unsafe { libc::setpriority(libc::PRIO_PROCESS as u32, 0, prio) };
+    return unsafe { libc::setpriority(PRIO_PROCESS, 0, prio) };
 }
 
 fn proc_nice() -> libc::c_int {
     // This is not proper logic, as it does not special-case -1 nor drain errno.
-    let r = unsafe { libc::getpriority(libc::PRIO_PROCESS as u32, 0) };
+    let r = unsafe { libc::getpriority(PRIO_PROCESS as u32, 0) };
     if r == -1 {
         panic!("getpriority failed.");
     }

@@ -70,3 +70,8 @@ pub const CAPSET: i64 = 91;
 pub const CAPGET: i64 = 183;
 #[cfg(target_arch = "powerpc")]
 pub const CAPSET: i64 = 184;
+
+#[cfg(target_arch = "mips")]
+pub const CAPGET: i32 = 4204;
+#[cfg(target_arch = "mips")]
+pub const CAPSET: i32 = 4205;
