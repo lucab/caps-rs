@@ -75,3 +75,8 @@ pub const CAPSET: i64 = 184;
 pub const CAPGET: i32 = 4204;
 #[cfg(target_arch = "mips")]
 pub const CAPSET: i32 = 4205;
+
+#[cfg(target_arch = "arm")]
+pub const CAPGET: i32 = 184;
+#[cfg(target_arch = "arm")]
+pub const CAPSET: i32 = 185;
