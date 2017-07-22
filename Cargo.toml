@@ -17,3 +17,11 @@ libc = "0.2"
 error-chain = {version = "0.9", default-features = false}
 enum_derive = "0.1"
 custom_derive ="0.1"
+
+[package.metadata.release]
+sign-commit = true
+upload-doc = false
+disable-push = true
+pre-release-commit-message = "cargo: caps release {{version}}"
+pro-release-commit-message = "cargo: version bump to {{version}}"
+tag-message = "caps {{version}}"
