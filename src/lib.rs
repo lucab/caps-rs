@@ -27,6 +27,8 @@ extern crate custom_derive;
 #[macro_use]
 extern crate enum_derive;
 
+use std::iter::FromIterator;
+
 // Error wrapping (public interface)
 mod errors;
 pub use errors::*;
@@ -47,7 +49,7 @@ mod bounding;
 ///
 /// All capabilities sets supported by Linux, including standard
 /// POSIX and custom ones. See `capabilities(7)`.
-#[derive(Debug,Clone,Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum CapSet {
     /// Ambient capabilities set (from Linux 4.3).
     Ambient,
@@ -135,6 +137,100 @@ custom_derive! {
         CAP_BLOCK_SUSPEND = nr::CAP_BLOCK_SUSPEND,
         /// CAP_AUDIT_READ (from Linux 3.16).
         CAP_AUDIT_READ = nr::CAP_AUDIT_READ,
+    }
+}
+
+impl std::fmt::Display for Capability {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let name = match self {
+            &Capability::CAP_CHOWN => "CAP_CHOWN",
+            &Capability::CAP_DAC_OVERRIDE => "CAP_DAC_OVERRIDE",
+            &Capability::CAP_DAC_READ_SEARCH => "CAP_DAC_READ_SEARCH",
+            &Capability::CAP_FOWNER => "CAP_FOWNER",
+            &Capability::CAP_FSETID => "CAP_FSETID",
+            &Capability::CAP_KILL => "CAP_KILL",
+            &Capability::CAP_SETGID => "CAP_SETGID",
+            &Capability::CAP_SETUID => "CAP_SETUID",
+            &Capability::CAP_SETPCAP => "CAP_SETPCAP",
+            &Capability::CAP_LINUX_IMMUTABLE => "CAP_LINUX_IMMUTABLE",
+            &Capability::CAP_NET_BIND_SERVICE => "CAP_NET_BIND_SERVICE",
+            &Capability::CAP_NET_BROADCAST => "CAP_NET_BROADCAST",
+            &Capability::CAP_NET_ADMIN => "CAP_NET_ADMIN",
+            &Capability::CAP_NET_RAW => "CAP_NET_RAW",
+            &Capability::CAP_IPC_LOCK => "CAP_IPC_LOCK",
+            &Capability::CAP_IPC_OWNER => "CAP_IPC_OWNER",
+            &Capability::CAP_SYS_MODULE => "CAP_SYS_MODULE",
+            &Capability::CAP_SYS_RAWIO => "CAP_SYS_RAWIO",
+            &Capability::CAP_SYS_CHROOT => "CAP_SYS_CHROOT",
+            &Capability::CAP_SYS_PTRACE => "CAP_SYS_PTRACE",
+            &Capability::CAP_SYS_PACCT => "CAP_SYS_PACCT",
+            &Capability::CAP_SYS_ADMIN => "CAP_SYS_ADMIN",
+            &Capability::CAP_SYS_BOOT => "CAP_SYS_BOOT",
+            &Capability::CAP_SYS_NICE => "CAP_SYS_NICE",
+            &Capability::CAP_SYS_RESOURCE => "CAP_SYS_RESOURCE",
+            &Capability::CAP_SYS_TIME => "CAP_SYS_TIME",
+            &Capability::CAP_SYS_TTY_CONFIG => "CAP_SYS_TTY_CONFIG",
+            &Capability::CAP_MKNOD => "CAP_MKNOD",
+            &Capability::CAP_LEASE => "CAP_LEASE",
+            &Capability::CAP_AUDIT_WRITE => "CAP_AUDIT_WRITE",
+            &Capability::CAP_AUDIT_CONTROL => "CAP_AUDIT_CONTROL",
+            &Capability::CAP_SETFCAP => "CAP_SETFCAP",
+            &Capability::CAP_MAC_OVERRIDE => "CAP_MAC_OVERRIDE",
+            &Capability::CAP_MAC_ADMIN => "CAP_MAC_ADMIN",
+            &Capability::CAP_SYSLOG => "CAP_SYSLOG",
+            &Capability::CAP_WAKE_ALARM => "CAP_WAKE_ALARM",
+            &Capability::CAP_BLOCK_SUSPEND => "CAP_BLOCK_SUSPEND",
+            &Capability::CAP_AUDIT_READ => "CAP_AUDIT_READ",
+        };
+        write!(f, "{}", name)
+    }
+}
+
+impl std::str::FromStr for Capability {
+    type Err = errors::Error;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "CAP_CHOWN" => Ok(Capability::CAP_CHOWN),
+            "CAP_DAC_OVERRIDE" => Ok(Capability::CAP_DAC_OVERRIDE),
+            "CAP_DAC_READ_SEARCH" => Ok(Capability::CAP_DAC_READ_SEARCH),
+            "CAP_FOWNER" => Ok(Capability::CAP_FOWNER),
+            "CAP_FSETID" => Ok(Capability::CAP_FSETID),
+            "CAP_KILL" => Ok(Capability::CAP_KILL),
+            "CAP_SETGID" => Ok(Capability::CAP_SETGID),
+            "CAP_SETUID" => Ok(Capability::CAP_SETUID),
+            "CAP_SETPCAP" => Ok(Capability::CAP_SETPCAP),
+            "CAP_LINUX_IMMUTABLE" => Ok(Capability::CAP_LINUX_IMMUTABLE),
+            "CAP_NET_BIND_SERVICE" => Ok(Capability::CAP_NET_BIND_SERVICE),
+            "CAP_NET_BROADCAST" => Ok(Capability::CAP_NET_BROADCAST),
+            "CAP_NET_ADMIN" => Ok(Capability::CAP_NET_ADMIN),
+            "CAP_NET_RAW" => Ok(Capability::CAP_NET_RAW),
+            "CAP_IPC_LOCK" => Ok(Capability::CAP_IPC_LOCK),
+            "CAP_IPC_OWNER" => Ok(Capability::CAP_IPC_OWNER),
+            "CAP_SYS_MODULE" => Ok(Capability::CAP_SYS_MODULE),
+            "CAP_SYS_RAWIO" => Ok(Capability::CAP_SYS_RAWIO),
+            "CAP_SYS_CHROOT" => Ok(Capability::CAP_SYS_CHROOT),
+            "CAP_SYS_PTRACE" => Ok(Capability::CAP_SYS_PTRACE),
+            "CAP_SYS_PACCT" => Ok(Capability::CAP_SYS_PACCT),
+            "CAP_SYS_ADMIN" => Ok(Capability::CAP_SYS_ADMIN),
+            "CAP_SYS_BOOT" => Ok(Capability::CAP_SYS_BOOT),
+            "CAP_SYS_NICE" => Ok(Capability::CAP_SYS_NICE),
+            "CAP_SYS_RESOURCE" => Ok(Capability::CAP_SYS_RESOURCE),
+            "CAP_SYS_TIME" => Ok(Capability::CAP_SYS_TIME),
+            "CAP_SYS_TTY_CONFIG" => Ok(Capability::CAP_SYS_TTY_CONFIG),
+            "CAP_MKNOD" => Ok(Capability::CAP_MKNOD),
+            "CAP_LEASE" => Ok(Capability::CAP_LEASE),
+            "CAP_AUDIT_WRITE" => Ok(Capability::CAP_AUDIT_WRITE),
+            "CAP_AUDIT_CONTROL" => Ok(Capability::CAP_AUDIT_CONTROL),
+            "CAP_SETFCAP" => Ok(Capability::CAP_SETFCAP),
+            "CAP_MAC_OVERRIDE" => Ok(Capability::CAP_MAC_OVERRIDE),
+            "CAP_MAC_ADMIN" => Ok(Capability::CAP_MAC_ADMIN),
+            "CAP_SYSLOG" => Ok(Capability::CAP_SYSLOG),
+            "CAP_WAKE_ALARM" => Ok(Capability::CAP_WAKE_ALARM),
+            "CAP_BLOCK_SUSPEND" => Ok(Capability::CAP_BLOCK_SUSPEND),
+            "CAP_AUDIT_READ" => Ok(Capability::CAP_AUDIT_READ),
+            _ => Err(ErrorKind::InvalidCapName(s.to_string()).into()),
+        }
     }
 }
 
@@ -242,4 +338,69 @@ pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::drop(t, cset, cap),
         _ => bail!("operation not supported"),
     };
+}
+
+/// Return an `HashSet` with all known capabilities.
+pub fn all() -> CapsHashSet {
+    let slice = vec![
+        Capability::CAP_CHOWN,
+        Capability::CAP_DAC_OVERRIDE,
+        Capability::CAP_DAC_READ_SEARCH,
+        Capability::CAP_FOWNER,
+        Capability::CAP_FSETID,
+        Capability::CAP_KILL,
+        Capability::CAP_SETGID,
+        Capability::CAP_SETUID,
+        Capability::CAP_SETPCAP,
+        Capability::CAP_LINUX_IMMUTABLE,
+        Capability::CAP_NET_BIND_SERVICE,
+        Capability::CAP_NET_BROADCAST,
+        Capability::CAP_NET_ADMIN,
+        Capability::CAP_NET_RAW,
+        Capability::CAP_IPC_LOCK,
+        Capability::CAP_IPC_OWNER,
+        Capability::CAP_SYS_MODULE,
+        Capability::CAP_SYS_RAWIO,
+        Capability::CAP_SYS_CHROOT,
+        Capability::CAP_SYS_PTRACE,
+        Capability::CAP_SYS_PACCT,
+        Capability::CAP_SYS_ADMIN,
+        Capability::CAP_SYS_BOOT,
+        Capability::CAP_SYS_NICE,
+        Capability::CAP_SYS_RESOURCE,
+        Capability::CAP_SYS_TIME,
+        Capability::CAP_SYS_TTY_CONFIG,
+        Capability::CAP_MKNOD,
+        Capability::CAP_LEASE,
+        Capability::CAP_AUDIT_WRITE,
+        Capability::CAP_AUDIT_CONTROL,
+        Capability::CAP_SETFCAP,
+        Capability::CAP_MAC_OVERRIDE,
+        Capability::CAP_MAC_ADMIN,
+        Capability::CAP_SYSLOG,
+        Capability::CAP_WAKE_ALARM,
+        Capability::CAP_BLOCK_SUSPEND,
+        Capability::CAP_AUDIT_READ,
+    ];
+    CapsHashSet::from_iter(slice)
+}
+
+#[test]
+fn test_all_roundtrip() {
+    let all = all();
+    assert!(all.len() > 0);
+    for c in all {
+        let name = c.to_string();
+        let parsed: Capability = name.parse().unwrap();
+        assert_eq!(c, parsed);
+    }
+}
+
+#[test]
+fn test_parse_invalid() {
+    use std::str::FromStr;
+    let p1 = Capability::from_str("CAP_FOO");
+    assert!(p1.is_err());
+    let p2: Result<Capability> = "CAP_BAR".parse();
+    assert!(p2.is_err());
 }
