@@ -10,24 +10,24 @@ pub fn clear() -> Result<()> {
             try!(drop(c));
         }
     }
-    return Ok(());
+    Ok(())
 }
 
 pub fn drop(cap: Capability) -> Result<()> {
-    let ret = unsafe { libc::prctl(nr::PR_CAPBSET_DROP, cap.index() as libc::c_uint, 0, 0) };
-    return match ret {
+    let ret = unsafe { libc::prctl(nr::PR_CAPBSET_DROP, libc::c_uint::from(cap.index()), 0, 0) };
+    match ret {
         0 => Ok(()),
         _ => bail!("PR_CAPBSET_DROP error {:?}", ret),
-    };
+    }
 }
 
 pub fn has_cap(cap: Capability) -> Result<bool> {
-    let ret = unsafe { libc::prctl(nr::PR_CAPBSET_READ, cap.index() as libc::c_uint, 0, 0) };
-    return match ret {
+    let ret = unsafe { libc::prctl(nr::PR_CAPBSET_READ, libc::c_uint::from(cap.index()), 0, 0) };
+    match ret {
         0 => Ok(false),
         1 => Ok(true),
         _ => bail!("PR_CAPBSET_READ error {:?}", ret),
-    };
+    }
 }
 
 pub fn read() -> Result<super::CapsHashSet> {
@@ -37,5 +37,5 @@ pub fn read() -> Result<super::CapsHashSet> {
             res.insert(c);
         }
     }
-    return Ok(res);
+    Ok(res)
 }

@@ -7,7 +7,6 @@
 //! in production code!
 
 extern crate caps;
-extern crate libc;
 
 use caps::{Capability, CapSet};
 

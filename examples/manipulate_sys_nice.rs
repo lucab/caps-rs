@@ -55,7 +55,7 @@ const PRIO_PROCESS: u32 = libc::PRIO_PROCESS as u32;
 
 fn renice(prio: libc::c_int) -> libc::c_int {
     // This is not proper logic, as it does not drain errno.
-    return unsafe { libc::setpriority(PRIO_PROCESS, 0, prio) };
+    unsafe { libc::setpriority(PRIO_PROCESS, 0, prio) }
 }
 
 fn proc_nice() -> libc::c_int {
@@ -64,5 +64,5 @@ fn proc_nice() -> libc::c_int {
     if r == -1 {
         panic!("getpriority failed.");
     }
-    return r;
+    r
 }

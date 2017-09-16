@@ -4,22 +4,23 @@ use nr;
 
 use libc;
 
+#[allow(unknown_lints, unreadable_literal)]
 const CAPS_V3: u32 = 0x20080522;
 
 fn capget(hdr: &mut CapUserHeader, data: &mut CapUserData) -> Result<()> {
     let r = unsafe { libc::syscall(nr::CAPGET, hdr, data) };
-    return match r {
+    match r {
         0 => Ok(()),
         _ => bail!("capget error {:?}", r),
-    };
+    }
 }
 
 fn capset(hdr: &mut CapUserHeader, data: &CapUserData) -> Result<()> {
     let r = unsafe { libc::syscall(nr::CAPSET, hdr, data) };
-    return match r {
+    match r {
         0 => Ok(()),
         _ => bail!("capset error {:?}", r),
-    };
+    }
 }
 
 pub fn has_cap(tid: i32, cset: CapSet, cap: Capability) -> Result<bool> {
@@ -30,13 +31,15 @@ pub fn has_cap(tid: i32, cset: CapSet, cap: Capability) -> Result<bool> {
     let mut data: CapUserData = Default::default();
     try!(capget(&mut hdr, &mut data));
     let caps: u64 = match cset {
-        CapSet::Effective => ((data.effective_s1 as u64) << 32) + data.effective_s0 as u64,
-        CapSet::Inheritable => ((data.inheritable_s1 as u64) << 32) + data.inheritable_s0 as u64,
-        CapSet::Permitted => ((data.permitted_s1 as u64) << 32) + data.permitted_s0 as u64,
+        CapSet::Effective => (u64::from(data.effective_s1) << 32) + u64::from(data.effective_s0),
+        CapSet::Inheritable => {
+            (u64::from(data.inheritable_s1) << 32) + u64::from(data.inheritable_s0)
+        }
+        CapSet::Permitted => (u64::from(data.permitted_s1) << 32) + u64::from(data.permitted_s0),
         CapSet::Bounding | CapSet::Ambient => bail!("not a base set"),
     };
     let has_cap = (caps & cap.bitmask()) != 0;
-    return Ok(has_cap);
+    Ok(has_cap)
 }
 
 pub fn clear(tid: i32, cset: CapSet) -> Result<()> {
@@ -63,7 +66,7 @@ pub fn clear(tid: i32, cset: CapSet) -> Result<()> {
         }
         CapSet::Bounding | CapSet::Ambient => bail!("not a base set"),
     }
-    return capset(&mut hdr, &mut data);
+    capset(&mut hdr, &data)
 }
 
 pub fn read(tid: i32, cset: CapSet) -> Result<super::CapsHashSet> {
@@ -74,9 +77,11 @@ pub fn read(tid: i32, cset: CapSet) -> Result<super::CapsHashSet> {
     let mut data: CapUserData = Default::default();
     try!(capget(&mut hdr, &mut data));
     let caps: u64 = match cset {
-        CapSet::Effective => ((data.effective_s1 as u64) << 32) + data.effective_s0 as u64,
-        CapSet::Inheritable => ((data.inheritable_s1 as u64) << 32) + data.inheritable_s0 as u64,
-        CapSet::Permitted => ((data.permitted_s1 as u64) << 32) + data.permitted_s0 as u64,
+        CapSet::Effective => (u64::from(data.effective_s1) << 32) + u64::from(data.effective_s0),
+        CapSet::Inheritable => {
+            (u64::from(data.inheritable_s1) << 32) + u64::from(data.inheritable_s0)
+        }
+        CapSet::Permitted => (u64::from(data.permitted_s1) << 32) + u64::from(data.permitted_s0),
         CapSet::Bounding | CapSet::Ambient => bail!("not a base set"),
     };
     let mut res = super::CapsHashSet::new();
@@ -85,7 +90,7 @@ pub fn read(tid: i32, cset: CapSet) -> Result<super::CapsHashSet> {
             res.insert(c);
         }
     }
-    return Ok(res);
+    Ok(res)
 }
 
 pub fn set(tid: i32, cset: CapSet, value: super::CapsHashSet) -> Result<()> {
@@ -117,7 +122,7 @@ pub fn set(tid: i32, cset: CapSet, value: super::CapsHashSet) -> Result<()> {
         }
     }
     try!(capset(&mut hdr, &data));
-    return Ok(());
+    Ok(())
 }
 
 pub fn drop(tid: i32, cset: CapSet, cap: Capability) -> Result<()> {
@@ -125,7 +130,7 @@ pub fn drop(tid: i32, cset: CapSet, cap: Capability) -> Result<()> {
     if caps.remove(&cap) {
         try!(set(tid, cset, caps));
     };
-    return Ok(());
+    Ok(())
 }
 
 pub fn raise(tid: i32, cset: CapSet, cap: Capability) -> Result<()> {
@@ -133,7 +138,7 @@ pub fn raise(tid: i32, cset: CapSet, cap: Capability) -> Result<()> {
     if caps.insert(cap) {
         try!(set(tid, cset, caps));
     };
-    return Ok(());
+    Ok(())
 }
 
 #[derive(Debug)]
