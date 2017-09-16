@@ -6,53 +6,59 @@ use nr;
 
 pub fn clear() -> Result<()> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };
-    return match ret {
+    match ret {
         0 => Ok(()),
         _ => bail!("PR_CAP_AMBIENT_CLEAR_ALL error {:?}", ret),
-    };
+    }
 }
 
 pub fn drop(cap: Capability) -> Result<()> {
     let ret = unsafe {
-        libc::prctl(nr::PR_CAP_AMBIENT,
-                    nr::PR_CAP_AMBIENT_LOWER,
-                    cap.index() as libc::c_uint,
-                    0,
-                    0)
+        libc::prctl(
+            nr::PR_CAP_AMBIENT,
+            nr::PR_CAP_AMBIENT_LOWER,
+            libc::c_uint::from(cap.index()),
+            0,
+            0,
+        )
     };
-    return match ret {
+    match ret {
         0 => Ok(()),
         _ => bail!("PR_CAP_AMBIENT_LOWER error {:?}", ret),
-    };
+    }
 }
 
 pub fn has_cap(cap: Capability) -> Result<bool> {
     let ret = unsafe {
-        libc::prctl(nr::PR_CAP_AMBIENT,
-                    nr::PR_CAP_AMBIENT_IS_SET,
-                    cap.index() as libc::c_uint,
-                    0,
-                    0)
+        libc::prctl(
+            nr::PR_CAP_AMBIENT,
+            nr::PR_CAP_AMBIENT_IS_SET,
+            libc::c_uint::from(cap.index()),
+            0,
+            0,
+        )
     };
-    return match ret {
+    match ret {
         0 => Ok(false),
         1 => Ok(true),
         _ => bail!("PR_CAP_AMBIENT_IS_SET error {:?}", ret),
-    };
+    }
 }
 
 pub fn raise(cap: Capability) -> Result<()> {
     let ret = unsafe {
-        libc::prctl(nr::PR_CAP_AMBIENT,
-                    nr::PR_CAP_AMBIENT_RAISE,
-                    cap.index() as libc::c_uint,
-                    0,
-                    0)
+        libc::prctl(
+            nr::PR_CAP_AMBIENT,
+            nr::PR_CAP_AMBIENT_RAISE,
+            libc::c_uint::from(cap.index()),
+            0,
+            0,
+        )
     };
-    return match ret {
+    match ret {
         0 => Ok(()),
         _ => bail!("PR_CAP_AMBIENT_RAISE error {:?}", ret),
-    };
+    }
 }
 
 pub fn read() -> Result<super::CapsHashSet> {
@@ -62,10 +68,10 @@ pub fn read() -> Result<super::CapsHashSet> {
             res.insert(c);
         }
     }
-    return Ok(res);
+    Ok(res)
 }
 
-pub fn set(value: super::CapsHashSet) -> Result<()> {
+pub fn set(value: &super::CapsHashSet) -> Result<()> {
     for c in Capability::iter_variants() {
         if value.contains(&c) {
             try!(raise(c));
@@ -73,5 +79,5 @@ pub fn set(value: super::CapsHashSet) -> Result<()> {
             try!(drop(c));
         };
     }
-    return Ok(());
+    Ok(())
 }

@@ -142,45 +142,45 @@ custom_derive! {
 
 impl std::fmt::Display for Capability {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        let name = match self {
-            &Capability::CAP_CHOWN => "CAP_CHOWN",
-            &Capability::CAP_DAC_OVERRIDE => "CAP_DAC_OVERRIDE",
-            &Capability::CAP_DAC_READ_SEARCH => "CAP_DAC_READ_SEARCH",
-            &Capability::CAP_FOWNER => "CAP_FOWNER",
-            &Capability::CAP_FSETID => "CAP_FSETID",
-            &Capability::CAP_KILL => "CAP_KILL",
-            &Capability::CAP_SETGID => "CAP_SETGID",
-            &Capability::CAP_SETUID => "CAP_SETUID",
-            &Capability::CAP_SETPCAP => "CAP_SETPCAP",
-            &Capability::CAP_LINUX_IMMUTABLE => "CAP_LINUX_IMMUTABLE",
-            &Capability::CAP_NET_BIND_SERVICE => "CAP_NET_BIND_SERVICE",
-            &Capability::CAP_NET_BROADCAST => "CAP_NET_BROADCAST",
-            &Capability::CAP_NET_ADMIN => "CAP_NET_ADMIN",
-            &Capability::CAP_NET_RAW => "CAP_NET_RAW",
-            &Capability::CAP_IPC_LOCK => "CAP_IPC_LOCK",
-            &Capability::CAP_IPC_OWNER => "CAP_IPC_OWNER",
-            &Capability::CAP_SYS_MODULE => "CAP_SYS_MODULE",
-            &Capability::CAP_SYS_RAWIO => "CAP_SYS_RAWIO",
-            &Capability::CAP_SYS_CHROOT => "CAP_SYS_CHROOT",
-            &Capability::CAP_SYS_PTRACE => "CAP_SYS_PTRACE",
-            &Capability::CAP_SYS_PACCT => "CAP_SYS_PACCT",
-            &Capability::CAP_SYS_ADMIN => "CAP_SYS_ADMIN",
-            &Capability::CAP_SYS_BOOT => "CAP_SYS_BOOT",
-            &Capability::CAP_SYS_NICE => "CAP_SYS_NICE",
-            &Capability::CAP_SYS_RESOURCE => "CAP_SYS_RESOURCE",
-            &Capability::CAP_SYS_TIME => "CAP_SYS_TIME",
-            &Capability::CAP_SYS_TTY_CONFIG => "CAP_SYS_TTY_CONFIG",
-            &Capability::CAP_MKNOD => "CAP_MKNOD",
-            &Capability::CAP_LEASE => "CAP_LEASE",
-            &Capability::CAP_AUDIT_WRITE => "CAP_AUDIT_WRITE",
-            &Capability::CAP_AUDIT_CONTROL => "CAP_AUDIT_CONTROL",
-            &Capability::CAP_SETFCAP => "CAP_SETFCAP",
-            &Capability::CAP_MAC_OVERRIDE => "CAP_MAC_OVERRIDE",
-            &Capability::CAP_MAC_ADMIN => "CAP_MAC_ADMIN",
-            &Capability::CAP_SYSLOG => "CAP_SYSLOG",
-            &Capability::CAP_WAKE_ALARM => "CAP_WAKE_ALARM",
-            &Capability::CAP_BLOCK_SUSPEND => "CAP_BLOCK_SUSPEND",
-            &Capability::CAP_AUDIT_READ => "CAP_AUDIT_READ",
+        let name = match *self {
+            Capability::CAP_CHOWN => "CAP_CHOWN",
+            Capability::CAP_DAC_OVERRIDE => "CAP_DAC_OVERRIDE",
+            Capability::CAP_DAC_READ_SEARCH => "CAP_DAC_READ_SEARCH",
+            Capability::CAP_FOWNER => "CAP_FOWNER",
+            Capability::CAP_FSETID => "CAP_FSETID",
+            Capability::CAP_KILL => "CAP_KILL",
+            Capability::CAP_SETGID => "CAP_SETGID",
+            Capability::CAP_SETUID => "CAP_SETUID",
+            Capability::CAP_SETPCAP => "CAP_SETPCAP",
+            Capability::CAP_LINUX_IMMUTABLE => "CAP_LINUX_IMMUTABLE",
+            Capability::CAP_NET_BIND_SERVICE => "CAP_NET_BIND_SERVICE",
+            Capability::CAP_NET_BROADCAST => "CAP_NET_BROADCAST",
+            Capability::CAP_NET_ADMIN => "CAP_NET_ADMIN",
+            Capability::CAP_NET_RAW => "CAP_NET_RAW",
+            Capability::CAP_IPC_LOCK => "CAP_IPC_LOCK",
+            Capability::CAP_IPC_OWNER => "CAP_IPC_OWNER",
+            Capability::CAP_SYS_MODULE => "CAP_SYS_MODULE",
+            Capability::CAP_SYS_RAWIO => "CAP_SYS_RAWIO",
+            Capability::CAP_SYS_CHROOT => "CAP_SYS_CHROOT",
+            Capability::CAP_SYS_PTRACE => "CAP_SYS_PTRACE",
+            Capability::CAP_SYS_PACCT => "CAP_SYS_PACCT",
+            Capability::CAP_SYS_ADMIN => "CAP_SYS_ADMIN",
+            Capability::CAP_SYS_BOOT => "CAP_SYS_BOOT",
+            Capability::CAP_SYS_NICE => "CAP_SYS_NICE",
+            Capability::CAP_SYS_RESOURCE => "CAP_SYS_RESOURCE",
+            Capability::CAP_SYS_TIME => "CAP_SYS_TIME",
+            Capability::CAP_SYS_TTY_CONFIG => "CAP_SYS_TTY_CONFIG",
+            Capability::CAP_MKNOD => "CAP_MKNOD",
+            Capability::CAP_LEASE => "CAP_LEASE",
+            Capability::CAP_AUDIT_WRITE => "CAP_AUDIT_WRITE",
+            Capability::CAP_AUDIT_CONTROL => "CAP_AUDIT_CONTROL",
+            Capability::CAP_SETFCAP => "CAP_SETFCAP",
+            Capability::CAP_MAC_OVERRIDE => "CAP_MAC_OVERRIDE",
+            Capability::CAP_MAC_ADMIN => "CAP_MAC_ADMIN",
+            Capability::CAP_SYSLOG => "CAP_SYSLOG",
+            Capability::CAP_WAKE_ALARM => "CAP_WAKE_ALARM",
+            Capability::CAP_BLOCK_SUSPEND => "CAP_BLOCK_SUSPEND",
+            Capability::CAP_AUDIT_READ => "CAP_AUDIT_READ",
         };
         write!(f, "{}", name)
     }
@@ -239,6 +239,7 @@ impl Capability {
     pub fn bitmask(&self) -> u64 {
         1u64 << (*self as u8)
     }
+
     /// Returns the index of this capability, i.e. its kernel-defined value.
     pub fn index(&self) -> u8 {
         (*self as u8)
@@ -255,12 +256,12 @@ pub type CapsHashSet = std::collections::HashSet<Capability>;
 /// It cannot check Ambient or Bounding capabilities of other processes.
 pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool> {
     let t = tid.unwrap_or(0);
-    return match cset {
+    match cset {
         CapSet::Ambient if t == 0 => ambient::has_cap(cap),
         CapSet::Bounding if t == 0 => bounding::has_cap(cap),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::has_cap(t, cset, cap),
         _ => bail!("operation not supported"),
-    };
+    }
 }
 
 /// Return all capabilities in a set for a thread.
@@ -270,13 +271,12 @@ pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool> 
 /// It cannot read Ambient or Bounding capabilities of other processes.
 pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet> {
     let t = tid.unwrap_or(0);
-    return match cset {
+    match cset {
         CapSet::Ambient if t == 0 => ambient::read(),
         CapSet::Bounding if t == 0 => bounding::read(),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::read(t, cset),
         _ => bail!("operation not supported"),
-    };
-
+    }
 }
 
 /// Set a capability set for a thread to a new value.
@@ -287,11 +287,11 @@ pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet> {
 /// Capabilities cannot be set in Bounding set.
 pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<()> {
     let t = tid.unwrap_or(0);
-    return match cset {
-        CapSet::Ambient if t == 0 => ambient::set(value),
+    match cset {
+        CapSet::Ambient if t == 0 => ambient::set(&value),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
         _ => bail!("operation not supported"),
-    };
+    }
 }
 
 
@@ -302,12 +302,12 @@ pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<()> {
 /// It cannot manipulate Ambient or Bounding set of other processes.
 pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<()> {
     let t = tid.unwrap_or(0);
-    return match cset {
+    match cset {
         CapSet::Ambient if t == 0 => ambient::clear(),
         CapSet::Bounding if t == 0 => bounding::clear(),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::clear(t, cset),
         _ => bail!("operation not supported"),
-    };
+    }
 }
 
 /// Raise a single capability in a set for a thread.
@@ -318,11 +318,11 @@ pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<()> {
 /// Capabilities cannot be raised in Bounding set.
 pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
     let t = tid.unwrap_or(0);
-    return match cset {
+    match cset {
         CapSet::Ambient if t == 0 => ambient::raise(cap),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::raise(t, cset, cap),
         _ => bail!("operation not supported"),
-    };
+    }
 }
 
 /// Drop a single capability from a set for a thread.
@@ -332,12 +332,12 @@ pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
 /// It cannot manipulate Ambient and Bounding sets of other processes.
 pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
     let t = tid.unwrap_or(0);
-    return match cset {
+    match cset {
         CapSet::Ambient if t == 0 => ambient::drop(cap),
         CapSet::Bounding if t == 0 => bounding::drop(cap),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::drop(t, cset, cap),
         _ => bail!("operation not supported"),
-    };
+    }
 }
 
 /// Return an `HashSet` with all known capabilities.
