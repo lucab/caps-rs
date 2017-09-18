@@ -76,5 +76,9 @@ Some more examples are available under [examples](examples).
 
 ## License
 
-`caps` is available under the terms of both the MIT license and the
-Apache License (Version 2.0).
+Licensed under either of
+
+ * MIT license - <http://opensource.org/licenses/MIT>
+ * Apache License, Version 2.0 - <http://www.apache.org/licenses/LICENSE-2.0>
+
+at your option.
