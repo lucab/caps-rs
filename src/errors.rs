@@ -1,3 +1,5 @@
+//! Error handling.
+
 error_chain!{
     errors {
         /// Parsing error due to invalid capability name.

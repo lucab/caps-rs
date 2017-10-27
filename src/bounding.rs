@@ -5,7 +5,7 @@ use errors::*;
 use nr;
 
 pub fn clear() -> Result<()> {
-    for c in Capability::iter_variants() {
+    for c in super::all() {
         if try!(has_cap(c)) {
             try!(drop(c));
         }
@@ -32,7 +32,7 @@ pub fn has_cap(cap: Capability) -> Result<bool> {
 
 pub fn read() -> Result<super::CapsHashSet> {
     let mut res = super::CapsHashSet::new();
-    for c in Capability::iter_variants() {
+    for c in super::all() {
         if try!(has_cap(c)) {
             res.insert(c);
         }

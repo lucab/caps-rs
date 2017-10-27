@@ -15,8 +15,6 @@ exclude = [
 [dependencies]
 libc = "0.2"
 error-chain = {version = "0.11", default-features = false}
-enum_derive = "0.1"
-custom_derive ="0.1"
 
 [package.metadata.release]
 sign-commit = true
