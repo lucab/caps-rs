@@ -29,9 +29,9 @@ extern crate enum_derive;
 
 use std::iter::FromIterator;
 
-// Error wrapping (public interface)
-mod errors;
-pub use errors::*;
+// Error wrapping
+pub mod errors;
+use errors::*;
 
 // All kernel-related constants
 mod nr;
