@@ -18,14 +18,9 @@
 //! }
 //! ```
 
-#![recursion_limit="500"]
-extern crate libc;
 #[macro_use]
 extern crate error_chain;
-#[macro_use]
-extern crate custom_derive;
-#[macro_use]
-extern crate enum_derive;
+extern crate libc;
 
 use std::iter::FromIterator;
 
@@ -63,81 +58,78 @@ pub enum CapSet {
     Permitted,
 }
 
-custom_derive! {
-    /// Linux capabilities.
-    ///
-    /// All capabilities supported by Linux, including standard
-    /// POSIX and custom ones. See `capabilities(7)`.
-    #[derive(PartialEq,Eq,Hash,Debug,Clone,Copy,
-             IterVariants(CapsVariants), IterVariantNames(CapsVariantNames))]
-    #[allow(non_camel_case_types)]
-    #[repr(u8)]
-    pub enum Capability {
-        /// CAP_CHOWN (from POSIX)
-        CAP_CHOWN = nr::CAP_CHOWN,
-        /// CAP_DAC_OVERRIDE (from POSIX)
-        CAP_DAC_OVERRIDE = nr::CAP_DAC_OVERRIDE,
-        /// CAP_DAC_READ_SEARCH (from POSIX)
-        CAP_DAC_READ_SEARCH = nr::CAP_DAC_READ_SEARCH,
-        /// CAP_FOWNER (from POSIX)
-        CAP_FOWNER = nr::CAP_FOWNER,
-        /// CAP_FSETID (from POSIX)
-        CAP_FSETID = nr::CAP_FSETID,
-        /// CAP_KILL (from POSIX)
-        CAP_KILL = nr::CAP_KILL,
-        /// CAP_SETGID (from POSIX)
-        CAP_SETGID = nr::CAP_SETGID,
-        /// CAP_SETUID (from POSIX)
-        CAP_SETUID = nr::CAP_SETUID,
-        /// CAP_SETPCAP (from Linux)
-        CAP_SETPCAP = nr::CAP_SETPCAP,
-        CAP_LINUX_IMMUTABLE = nr::CAP_LINUX_IMMUTABLE,
-        CAP_NET_BIND_SERVICE = nr::CAP_NET_BIND_SERVICE,
-        CAP_NET_BROADCAST = nr::CAP_NET_BROADCAST,
-        CAP_NET_ADMIN = nr::CAP_NET_ADMIN,
-        CAP_NET_RAW = nr::CAP_NET_RAW,
-        CAP_IPC_LOCK = nr::CAP_IPC_LOCK,
-        CAP_IPC_OWNER = nr::CAP_IPC_OWNER,
-        /// CAP_SYS_MODULE (from Linux)
-        CAP_SYS_MODULE = nr::CAP_SYS_MODULE,
-        /// CAP_SYS_RAWIO (from Linux)
-        CAP_SYS_RAWIO = nr::CAP_SYS_RAWIO,
-        /// CAP_SYS_CHROOT (from Linux)
-        CAP_SYS_CHROOT = nr::CAP_SYS_CHROOT,
-        /// CAP_SYS_PTRACE (from Linux)
-        CAP_SYS_PTRACE = nr::CAP_SYS_PTRACE,
-        /// CAP_SYS_PACCT (from Linux)
-        CAP_SYS_PACCT = nr::CAP_SYS_PACCT,
-        /// CAP_SYS_ADMIN (from Linux)
-        CAP_SYS_ADMIN = nr::CAP_SYS_ADMIN,
-        /// CAP_SYS_BOOT (from Linux)
-        CAP_SYS_BOOT = nr::CAP_SYS_BOOT,
-        /// CAP_SYS_NICE (from Linux)
-        CAP_SYS_NICE = nr::CAP_SYS_NICE,
-        /// CAP_SYS_RESOURCE (from Linux)
-        CAP_SYS_RESOURCE = nr::CAP_SYS_RESOURCE,
-        /// CAP_SYS_TIME (from Linux)
-        CAP_SYS_TIME = nr::CAP_SYS_TIME,
-        /// CAP_SYS_TTY_CONFIG (from Linux)
-        CAP_SYS_TTY_CONFIG = nr::CAP_SYS_TTY_CONFIG,
-        /// CAP_SYS_MKNOD (from Linux 2.4)
-        CAP_MKNOD = nr::CAP_MKNOD,
-        /// CAP_LEASE (from Linux 2.4)
-        CAP_LEASE = nr::CAP_LEASE,
-        CAP_AUDIT_WRITE = nr::CAP_AUDIT_WRITE,
-        /// CAP_AUDIT_CONTROL (from Linux 2.6.11)
-        CAP_AUDIT_CONTROL = nr::CAP_AUDIT_CONTROL,
-        CAP_SETFCAP = nr::CAP_SETFCAP,
-        CAP_MAC_OVERRIDE = nr::CAP_MAC_OVERRIDE,
-        CAP_MAC_ADMIN = nr::CAP_MAC_ADMIN,
-        /// CAP_SYSLOG (from Linux 2.6.37)
-        CAP_SYSLOG = nr::CAP_SYSLOG,
-        // CAP_WAKE_ALARM (from Linux 3.0)
-        CAP_WAKE_ALARM = nr::CAP_WAKE_ALARM,
-        CAP_BLOCK_SUSPEND = nr::CAP_BLOCK_SUSPEND,
-        /// CAP_AUDIT_READ (from Linux 3.16).
-        CAP_AUDIT_READ = nr::CAP_AUDIT_READ,
-    }
+/// Linux capabilities.
+///
+/// All capabilities supported by Linux, including standard
+/// POSIX and custom ones. See `capabilities(7)`.
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[allow(non_camel_case_types)]
+#[repr(u8)]
+pub enum Capability {
+    /// CAP_CHOWN (from POSIX)
+    CAP_CHOWN = nr::CAP_CHOWN,
+    /// CAP_DAC_OVERRIDE (from POSIX)
+    CAP_DAC_OVERRIDE = nr::CAP_DAC_OVERRIDE,
+    /// CAP_DAC_READ_SEARCH (from POSIX)
+    CAP_DAC_READ_SEARCH = nr::CAP_DAC_READ_SEARCH,
+    /// CAP_FOWNER (from POSIX)
+    CAP_FOWNER = nr::CAP_FOWNER,
+    /// CAP_FSETID (from POSIX)
+    CAP_FSETID = nr::CAP_FSETID,
+    /// CAP_KILL (from POSIX)
+    CAP_KILL = nr::CAP_KILL,
+    /// CAP_SETGID (from POSIX)
+    CAP_SETGID = nr::CAP_SETGID,
+    /// CAP_SETUID (from POSIX)
+    CAP_SETUID = nr::CAP_SETUID,
+    /// CAP_SETPCAP (from Linux)
+    CAP_SETPCAP = nr::CAP_SETPCAP,
+    CAP_LINUX_IMMUTABLE = nr::CAP_LINUX_IMMUTABLE,
+    CAP_NET_BIND_SERVICE = nr::CAP_NET_BIND_SERVICE,
+    CAP_NET_BROADCAST = nr::CAP_NET_BROADCAST,
+    CAP_NET_ADMIN = nr::CAP_NET_ADMIN,
+    CAP_NET_RAW = nr::CAP_NET_RAW,
+    CAP_IPC_LOCK = nr::CAP_IPC_LOCK,
+    CAP_IPC_OWNER = nr::CAP_IPC_OWNER,
+    /// CAP_SYS_MODULE (from Linux)
+    CAP_SYS_MODULE = nr::CAP_SYS_MODULE,
+    /// CAP_SYS_RAWIO (from Linux)
+    CAP_SYS_RAWIO = nr::CAP_SYS_RAWIO,
+    /// CAP_SYS_CHROOT (from Linux)
+    CAP_SYS_CHROOT = nr::CAP_SYS_CHROOT,
+    /// CAP_SYS_PTRACE (from Linux)
+    CAP_SYS_PTRACE = nr::CAP_SYS_PTRACE,
+    /// CAP_SYS_PACCT (from Linux)
+    CAP_SYS_PACCT = nr::CAP_SYS_PACCT,
+    /// CAP_SYS_ADMIN (from Linux)
+    CAP_SYS_ADMIN = nr::CAP_SYS_ADMIN,
+    /// CAP_SYS_BOOT (from Linux)
+    CAP_SYS_BOOT = nr::CAP_SYS_BOOT,
+    /// CAP_SYS_NICE (from Linux)
+    CAP_SYS_NICE = nr::CAP_SYS_NICE,
+    /// CAP_SYS_RESOURCE (from Linux)
+    CAP_SYS_RESOURCE = nr::CAP_SYS_RESOURCE,
+    /// CAP_SYS_TIME (from Linux)
+    CAP_SYS_TIME = nr::CAP_SYS_TIME,
+    /// CAP_SYS_TTY_CONFIG (from Linux)
+    CAP_SYS_TTY_CONFIG = nr::CAP_SYS_TTY_CONFIG,
+    /// CAP_SYS_MKNOD (from Linux 2.4)
+    CAP_MKNOD = nr::CAP_MKNOD,
+    /// CAP_LEASE (from Linux 2.4)
+    CAP_LEASE = nr::CAP_LEASE,
+    CAP_AUDIT_WRITE = nr::CAP_AUDIT_WRITE,
+    /// CAP_AUDIT_CONTROL (from Linux 2.6.11)
+    CAP_AUDIT_CONTROL = nr::CAP_AUDIT_CONTROL,
+    CAP_SETFCAP = nr::CAP_SETFCAP,
+    CAP_MAC_OVERRIDE = nr::CAP_MAC_OVERRIDE,
+    CAP_MAC_ADMIN = nr::CAP_MAC_ADMIN,
+    /// CAP_SYSLOG (from Linux 2.6.37)
+    CAP_SYSLOG = nr::CAP_SYSLOG,
+    // CAP_WAKE_ALARM (from Linux 3.0)
+    CAP_WAKE_ALARM = nr::CAP_WAKE_ALARM,
+    CAP_BLOCK_SUSPEND = nr::CAP_BLOCK_SUSPEND,
+    /// CAP_AUDIT_READ (from Linux 3.16).
+    CAP_AUDIT_READ = nr::CAP_AUDIT_READ,
 }
 
 impl std::fmt::Display for Capability {

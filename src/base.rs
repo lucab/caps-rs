@@ -85,7 +85,7 @@ pub fn read(tid: i32, cset: CapSet) -> Result<super::CapsHashSet> {
         CapSet::Bounding | CapSet::Ambient => bail!("not a base set"),
     };
     let mut res = super::CapsHashSet::new();
-    for c in super::Capability::iter_variants() {
+    for c in super::all() {
         if (caps & c.bitmask()) != 0 {
             res.insert(c);
         }
