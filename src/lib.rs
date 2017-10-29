@@ -377,6 +377,23 @@ pub fn all() -> CapsHashSet {
     CapsHashSet::from_iter(slice)
 }
 
+/// Convert an informal capability name into a canonical form.
+///
+/// This converts the input string to uppercase and ensures that it starts with
+/// `CAP_`, prepending it if necessary. It performs no validity checks so the
+/// output may not represent an actual capability. To check if it is, pass it
+/// to [`from_str`].
+///
+/// [`from_str`]: enum.Capability.html#method.from_str
+pub fn to_canonical(s: &str) -> String {
+    let su = s.to_uppercase();
+    if su.starts_with("CAP_") {
+        su
+    } else {
+        ["CAP_", &su].concat()
+    }
+}
+
 #[test]
 fn test_all_roundtrip() {
     let all = all();
@@ -395,4 +412,13 @@ fn test_parse_invalid() {
     assert!(p1.is_err());
     let p2: Result<Capability> = "CAP_BAR".parse();
     assert!(p2.is_err());
+}
+
+#[test]
+fn test_to_canonical() {
+    use std::str::FromStr;
+    let p1 = "foo";
+    assert!(Capability::from_str(&to_canonical(p1)).is_err());
+    let p2 = "sys_admin";
+    assert!(Capability::from_str(&to_canonical(p2)).is_ok());
 }
