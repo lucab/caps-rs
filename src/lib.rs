@@ -22,23 +22,15 @@
 extern crate error_chain;
 extern crate libc;
 
+mod ambient;     // Implementation of Ambient set
+mod base;        // Implementation of POSIX sets
+mod bounding;    // Implementation of Bounding set
+mod nr;          // All kernel-related constants
+pub mod errors;  // Error wrapping
+pub mod runtime; // Features/legacy detection at runtime
+
 use std::iter::FromIterator;
-
-// Error wrapping
-pub mod errors;
 use errors::*;
-
-// All kernel-related constants
-mod nr;
-
-// Implementation of POSIX sets
-mod base;
-
-// Implementation of Ambient set
-mod ambient;
-
-// Implementation of Bounding set
-mod bounding;
 
 /// Linux capabilities sets.
 ///
