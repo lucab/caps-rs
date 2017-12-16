@@ -52,9 +52,9 @@ pub const PR_CAP_AMBIENT_CLEAR_ALL: i32 = 4;
 /* from <unistd.h> */
 
 #[cfg(target_arch = "x86")]
-pub const CAPGET: i64 = 184;
+pub const CAPGET: i32 = 184;
 #[cfg(target_arch = "x86")]
-pub const CAPSET: i64 = 185;
+pub const CAPSET: i32 = 185;
 
 #[cfg(target_arch = "x86_64")]
 pub const CAPGET: i64 = 125;
