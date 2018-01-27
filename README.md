@@ -21,21 +21,6 @@ This library tries to achieve the following goals:
  * provide an idiomatic interface
  * be usable in static targets, without requiring an external C library
 
-## Usage
-
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-caps = "0.0"
-```
-
-and this to your crate root:
-
-```rust
-extern crate caps;
-```
-
 ## Example
 
 ```rust
