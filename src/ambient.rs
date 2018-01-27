@@ -1,3 +1,4 @@
+use errno;
 use libc;
 
 use super::Capability;
@@ -8,7 +9,8 @@ pub fn clear() -> Result<()> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };
     match ret {
         0 => Ok(()),
-        _ => bail!("PR_CAP_AMBIENT_CLEAR_ALL error {:?}", ret),
+        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
+                 .chain_err(|| "PR_CAP_AMBIENT_CLEAR_ALL error"))
     }
 }
 
@@ -24,7 +26,8 @@ pub fn drop(cap: Capability) -> Result<()> {
     };
     match ret {
         0 => Ok(()),
-        _ => bail!("PR_CAP_AMBIENT_LOWER error {:?}", ret),
+        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
+                 .chain_err(|| "PR_CAP_AMBIENT_LOWER error"))
     }
 }
 
@@ -41,7 +44,8 @@ pub fn has_cap(cap: Capability) -> Result<bool> {
     match ret {
         0 => Ok(false),
         1 => Ok(true),
-        _ => bail!("PR_CAP_AMBIENT_IS_SET error {:?}", ret),
+        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
+                 .chain_err(|| "PR_CAP_AMBIENT_IS_SET error"))
     }
 }
 
@@ -57,7 +61,8 @@ pub fn raise(cap: Capability) -> Result<()> {
     };
     match ret {
         0 => Ok(()),
-        _ => bail!("PR_CAP_AMBIENT_RAISE error {:?}", ret),
+        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
+                 .chain_err(|| "PR_CAP_AMBIENT_RAISE error"))
     }
 }
 

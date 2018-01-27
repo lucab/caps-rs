@@ -20,6 +20,7 @@
 
 #[macro_use]
 extern crate error_chain;
+extern crate errno;
 extern crate libc;
 
 mod ambient;     // Implementation of Ambient set
