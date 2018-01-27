@@ -1,8 +1,9 @@
+use errno;
+use libc;
+
 use super::{Capability, CapSet};
 use errors::*;
 use nr;
-
-use libc;
 
 #[allow(unknown_lints, unreadable_literal)]
 const CAPS_V3: u32 = 0x20080522;
@@ -11,7 +12,8 @@ fn capget(hdr: &mut CapUserHeader, data: &mut CapUserData) -> Result<()> {
     let r = unsafe { libc::syscall(nr::CAPGET, hdr, data) };
     match r {
         0 => Ok(()),
-        _ => bail!("capget error {:?}", r),
+        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
+                 .chain_err(|| "capget error"))
     }
 }
 
@@ -19,7 +21,8 @@ fn capset(hdr: &mut CapUserHeader, data: &CapUserData) -> Result<()> {
     let r = unsafe { libc::syscall(nr::CAPSET, hdr, data) };
     match r {
         0 => Ok(()),
-        _ => bail!("capset error {:?}", r),
+        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
+                 .chain_err(|| "capset error"))
     }
 }
 

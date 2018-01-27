@@ -13,8 +13,9 @@ exclude = [
 ]
 
 [dependencies]
-libc = "0.2"
+errno = "0.2"
 error-chain = {version = "0.11", default-features = false}
+libc = "0.2"
 
 [package.metadata.release]
 sign-commit = true
