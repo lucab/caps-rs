@@ -1,6 +1,6 @@
 [package]
 name = "caps"
-version = "0.2.1-alpha.0"
+version = "0.3.0-alpha.0"
 authors = ["Luca Bruno <lucab@debian.org>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/lucab/caps-rs"
@@ -14,7 +14,7 @@ exclude = [
 
 [dependencies]
 errno = "0.2"
-error-chain = {version = "0.11", default-features = false}
+error-chain = {version = "0.12", default-features = false}
 libc = "0.2"
 
 [package.metadata.release]
