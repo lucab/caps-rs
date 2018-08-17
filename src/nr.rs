@@ -41,6 +41,8 @@ pub const CAP_AUDIT_READ: u8 = 37;
 
 /* from <sys/prctl.h> */
 
+pub const PR_GET_KEEPCAPS: i32 = 7;
+pub const PR_SET_KEEPCAPS: i32 = 8;
 pub const PR_CAPBSET_READ: i32 = 23;
 pub const PR_CAPBSET_DROP: i32 = 24;
 pub const PR_CAP_AMBIENT: i32 = 47;
