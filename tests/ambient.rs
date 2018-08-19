@@ -24,7 +24,6 @@ fn test_ambient_drop() {
     assert_eq!(no_cap, false);
 }
 
-
 #[test]
 fn test_ambient_drop_other() {
     assert!(caps::drop(Some(1), caps::CapSet::Ambient, caps::Capability::CAP_CHOWN).is_err());

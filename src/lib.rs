@@ -23,16 +23,16 @@ extern crate error_chain;
 extern crate errno;
 extern crate libc;
 
-mod ambient;        // Implementation of Ambient set
-mod base;           // Implementation of POSIX sets
-mod bounding;       // Implementation of Bounding set
-mod nr;             // All kernel-related constants
-pub mod errors;     // Error wrapping
-pub mod runtime;    // Features/legacy detection at runtime
+mod ambient;     // Implementation of Ambient set
+mod base;        // Implementation of POSIX sets
+mod bounding;    // Implementation of Bounding set
+pub mod errors;  // Error wrapping
+mod nr;          // All kernel-related constants
+pub mod runtime; // Features/legacy detection at runtime
 pub mod securebits; // Thread security bits
 
-use std::iter::FromIterator;
 use errors::*;
+use std::iter::FromIterator;
 
 /// Linux capabilities sets.
 ///
@@ -222,11 +222,13 @@ impl std::str::FromStr for Capability {
 
 impl Capability {
     /// Returns the bitmask corresponding to this capability value.
+    #[cfg_attr(feature = "cargo-clippy", allow(trivially_copy_pass_by_ref))]
     pub fn bitmask(&self) -> u64 {
         1u64 << (*self as u8)
     }
 
     /// Returns the index of this capability, i.e. its kernel-defined value.
+    #[cfg_attr(feature = "cargo-clippy", allow(trivially_copy_pass_by_ref))]
     pub fn index(&self) -> u8 {
         (*self as u8)
     }
@@ -279,7 +281,6 @@ pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<()> {
         _ => bail!("operation not supported"),
     }
 }
-
 
 /// Clear all capabilities in a set for a thread.
 ///
