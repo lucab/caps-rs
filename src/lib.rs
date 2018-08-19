@@ -23,16 +23,16 @@ extern crate error_chain;
 extern crate errno;
 extern crate libc;
 
-mod ambient;        // Implementation of Ambient set
-mod base;           // Implementation of POSIX sets
-mod bounding;       // Implementation of Bounding set
-mod nr;             // All kernel-related constants
-pub mod errors;     // Error wrapping
-pub mod runtime;    // Features/legacy detection at runtime
+mod ambient;     // Implementation of Ambient set
+mod base;        // Implementation of POSIX sets
+mod bounding;    // Implementation of Bounding set
+pub mod errors;  // Error wrapping
+mod nr;          // All kernel-related constants
+pub mod runtime; // Features/legacy detection at runtime
 pub mod securebits; // Thread security bits
 
-use std::iter::FromIterator;
 use errors::*;
+use std::iter::FromIterator;
 
 /// Linux capabilities sets.
 ///
@@ -279,7 +279,6 @@ pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<()> {
         _ => bail!("operation not supported"),
     }
 }
-
 
 /// Clear all capabilities in a set for a thread.
 ///

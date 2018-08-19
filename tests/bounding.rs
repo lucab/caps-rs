@@ -2,10 +2,11 @@ extern crate caps;
 
 #[test]
 fn test_bounding_has_cap() {
-    caps::has_cap(None,
-                  caps::CapSet::Bounding,
-                  caps::Capability::CAP_SYS_CHROOT)
-        .unwrap();
+    caps::has_cap(
+        None,
+        caps::CapSet::Bounding,
+        caps::Capability::CAP_SYS_CHROOT,
+    ).unwrap();
 }
 
 #[test]
@@ -27,9 +28,11 @@ fn test_bounding_clear() {
 
 #[test]
 fn test_bounding_drop() {
-    let ret = caps::drop(None,
-                         caps::CapSet::Bounding,
-                         caps::Capability::CAP_SYS_CHROOT);
+    let ret = caps::drop(
+        None,
+        caps::CapSet::Bounding,
+        caps::Capability::CAP_SYS_CHROOT,
+    );
     if caps::has_cap(None, caps::CapSet::Effective, caps::Capability::CAP_SETPCAP).unwrap() {
         ret.unwrap();
         let set = caps::read(None, caps::CapSet::Bounding).unwrap();

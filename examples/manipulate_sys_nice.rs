@@ -9,7 +9,7 @@
 extern crate caps;
 extern crate libc;
 
-use caps::{Capability, CapSet};
+use caps::{CapSet, Capability};
 
 fn main() {
     // Any process can lower its own priority.

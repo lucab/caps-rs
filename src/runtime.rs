@@ -5,8 +5,8 @@
 //! whether recent options are implemented by the currently
 //! running kernel.
 
+use super::{ambient, CapSet, Capability, CapsHashSet};
 use errors::*;
-use super::{ambient, Capability, CapsHashSet, CapSet};
 
 /// Check whether the running kernel supports the ambient set.
 ///

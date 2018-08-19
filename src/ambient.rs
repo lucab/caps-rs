@@ -10,7 +10,7 @@ pub fn clear() -> Result<()> {
     match ret {
         0 => Ok(()),
         _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-                 .chain_err(|| "PR_CAP_AMBIENT_CLEAR_ALL error"))
+            .chain_err(|| "PR_CAP_AMBIENT_CLEAR_ALL error")),
     }
 }
 
@@ -27,7 +27,7 @@ pub fn drop(cap: Capability) -> Result<()> {
     match ret {
         0 => Ok(()),
         _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-                 .chain_err(|| "PR_CAP_AMBIENT_LOWER error"))
+            .chain_err(|| "PR_CAP_AMBIENT_LOWER error")),
     }
 }
 
@@ -45,7 +45,7 @@ pub fn has_cap(cap: Capability) -> Result<bool> {
         0 => Ok(false),
         1 => Ok(true),
         _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-                 .chain_err(|| "PR_CAP_AMBIENT_IS_SET error"))
+            .chain_err(|| "PR_CAP_AMBIENT_IS_SET error")),
     }
 }
 
@@ -62,7 +62,7 @@ pub fn raise(cap: Capability) -> Result<()> {
     match ret {
         0 => Ok(()),
         _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-                 .chain_err(|| "PR_CAP_AMBIENT_RAISE error"))
+            .chain_err(|| "PR_CAP_AMBIENT_RAISE error")),
     }
 }
 

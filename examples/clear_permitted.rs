@@ -8,10 +8,9 @@
 
 extern crate caps;
 
-use caps::{Capability, CapSet};
+use caps::{CapSet, Capability};
 
 fn main() {
-
     // Check if `CAP_CHOWN` was originally available.
     let cur = caps::read(None, CapSet::Permitted).unwrap();
     println!("-> Current permitted caps: {:?}.", cur);
@@ -46,7 +45,6 @@ fn main() {
     println!("-> Current permitted caps: {:?}.", cur);
     let cur = caps::read(None, CapSet::Effective).unwrap();
     println!("-> Current effective caps: {:?}.", cur);
-
 
     // Trying to raise `CAP_CHOWN` now fails.
     let r = caps::raise(None, CapSet::Effective, Capability::CAP_CHOWN);
