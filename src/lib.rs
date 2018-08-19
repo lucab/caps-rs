@@ -222,11 +222,13 @@ impl std::str::FromStr for Capability {
 
 impl Capability {
     /// Returns the bitmask corresponding to this capability value.
+    #[cfg_attr(feature = "cargo-clippy", allow(trivially_copy_pass_by_ref))]
     pub fn bitmask(&self) -> u64 {
         1u64 << (*self as u8)
     }
 
     /// Returns the index of this capability, i.e. its kernel-defined value.
+    #[cfg_attr(feature = "cargo-clippy", allow(trivially_copy_pass_by_ref))]
     pub fn index(&self) -> u8 {
         (*self as u8)
     }
