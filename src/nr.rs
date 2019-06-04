@@ -69,8 +69,13 @@ pub const CAPGET: i64 = 90;
 pub const CAPSET: i64 = 91;
 
 #[cfg(target_arch = "powerpc")]
-pub const CAPGET: i64 = 183;
+pub const CAPGET: i32 = 183;
 #[cfg(target_arch = "powerpc")]
+pub const CAPSET: i32 = 184;
+
+#[cfg(target_arch = "powerpc64")]
+pub const CAPGET: i64 = 183;
+#[cfg(target_arch = "powerpc64")]
 pub const CAPSET: i64 = 184;
 
 #[cfg(target_arch = "mips")]
@@ -78,7 +83,17 @@ pub const CAPGET: i32 = 4204;
 #[cfg(target_arch = "mips")]
 pub const CAPSET: i32 = 4205;
 
+#[cfg(target_arch = "mips64")]
+pub const CAPGET: i64 = 5123;
+#[cfg(target_arch = "mips64")]
+pub const CAPSET: i64 = 5124;
+
 #[cfg(target_arch = "arm")]
 pub const CAPGET: i32 = 184;
 #[cfg(target_arch = "arm")]
 pub const CAPSET: i32 = 185;
+
+#[cfg(target_arch = "s390x")]
+pub const CAPGET: i64 = 184;
+#[cfg(target_arch = "s390x")]
+pub const CAPSET: i64 = 185;
