@@ -23,5 +23,5 @@ upload-doc = false
 disable-publish = true
 disable-push = true
 pre-release-commit-message = "cargo: caps release {{version}}"
-pro-release-commit-message = "cargo: version bump to {{version}}"
+pro-release-commit-message = "cargo: development version bump"
 tag-message = "caps {{version}}"
