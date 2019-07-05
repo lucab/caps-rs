@@ -16,3 +16,11 @@ error_chain!{
         }
     }
 }
+
+#[test]
+fn test_sys_errno() {
+    let eperm = errno::Errno(1);
+    let err = ErrorKind::Sys(eperm);
+    assert!(err.description().contains("syscall failed"));
+    assert!(format!("{}", err).contains("Operation not permitted"));
+}

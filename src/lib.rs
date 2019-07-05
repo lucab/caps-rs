@@ -380,12 +380,12 @@ pub fn all() -> CapsHashSet {
 /// to [`from_str`].
 ///
 /// [`from_str`]: enum.Capability.html#method.from_str
-pub fn to_canonical(s: &str) -> String {
-    let su = s.to_uppercase();
-    if su.starts_with("CAP_") {
-        su
+pub fn to_canonical(name: &str) -> String {
+    let uppername = name.to_uppercase();
+    if uppername.starts_with("CAP_") {
+        uppername
     } else {
-        ["CAP_", &su].concat()
+        ["CAP_", &uppername].concat()
     }
 }
 
@@ -404,7 +404,9 @@ fn test_all_roundtrip() {
 fn test_parse_invalid() {
     use std::str::FromStr;
     let p1 = Capability::from_str("CAP_FOO");
-    assert!(p1.is_err());
+    let p1_err = p1.unwrap_err();
+    assert!(p1_err.description().contains("invalid"));
+    assert!(format!("{}", p1_err).contains("CAP_FOO"));
     let p2: Result<Capability> = "CAP_BAR".parse();
     assert!(p2.is_err());
 }
@@ -416,4 +418,6 @@ fn test_to_canonical() {
     assert!(Capability::from_str(&to_canonical(p1)).is_err());
     let p2 = "sys_admin";
     assert!(Capability::from_str(&to_canonical(p2)).is_ok());
+    let p3 = "CAP_SYS_CHROOT";
+    assert!(Capability::from_str(&to_canonical(p3)).is_ok());
 }
