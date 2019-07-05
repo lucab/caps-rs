@@ -23,11 +23,11 @@ extern crate error_chain;
 extern crate errno;
 extern crate libc;
 
-mod ambient;     // Implementation of Ambient set
-mod base;        // Implementation of POSIX sets
-mod bounding;    // Implementation of Bounding set
-pub mod errors;  // Error wrapping
-mod nr;          // All kernel-related constants
+mod ambient; // Implementation of Ambient set
+mod base; // Implementation of POSIX sets
+mod bounding; // Implementation of Bounding set
+pub mod errors; // Error wrapping
+mod nr; // All kernel-related constants
 pub mod runtime; // Features/legacy detection at runtime
 pub mod securebits; // Thread security bits
 

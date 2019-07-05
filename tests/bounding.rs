@@ -6,7 +6,8 @@ fn test_bounding_has_cap() {
         None,
         caps::CapSet::Bounding,
         caps::Capability::CAP_SYS_CHROOT,
-    ).unwrap();
+    )
+    .unwrap();
 }
 
 #[test]
