@@ -97,3 +97,8 @@ pub const CAPSET: i32 = 185;
 pub const CAPGET: i64 = 184;
 #[cfg(target_arch = "s390x")]
 pub const CAPSET: i64 = 185;
+
+#[cfg(target_arch = "sparc")]
+pub const CAPGET: i64 = 21;
+#[cfg(target_arch = "sparc")]
+pub const CAPSET: i64 = 22;
