@@ -102,3 +102,8 @@ pub const CAPSET: i64 = 185;
 pub const CAPGET: i64 = 21;
 #[cfg(target_arch = "sparc")]
 pub const CAPSET: i64 = 22;
+
+#[cfg(target_arch = "sparc64")]
+pub const CAPGET: i64 = 21;
+#[cfg(target_arch = "sparc64")]
+pub const CAPSET: i64 = 22;
