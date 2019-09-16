@@ -1,9 +1,6 @@
-use errno;
-use libc;
-
 use super::Capability;
-use errors::*;
-use nr;
+use crate::errors::*;
+use crate::nr;
 
 pub fn clear() -> Result<()> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };

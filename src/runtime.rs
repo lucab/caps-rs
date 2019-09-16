@@ -6,7 +6,7 @@
 //! running kernel.
 
 use super::{ambient, CapSet, Capability, CapsHashSet};
-use errors::*;
+use crate::errors::*;
 
 /// Check whether the running kernel supports the ambient set.
 ///
