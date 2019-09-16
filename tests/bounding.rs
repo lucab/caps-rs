@@ -56,5 +56,5 @@ fn test_bounding_raise() {
 #[test]
 fn test_bounding_set() {
     let v = caps::CapsHashSet::new();
-    assert!(caps::set(None, caps::CapSet::Bounding, v).is_err());
+    assert!(caps::set(None, caps::CapSet::Bounding, &v).is_err());
 }

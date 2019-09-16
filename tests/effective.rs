@@ -39,10 +39,10 @@ fn test_effective_raise() {
 #[test]
 fn test_effective_set() {
     let mut v = caps::CapsHashSet::new();
-    caps::set(None, caps::CapSet::Effective, v.clone()).unwrap();
+    caps::set(None, caps::CapSet::Effective, &v).unwrap();
     let empty = caps::read(None, caps::CapSet::Effective).unwrap();
     assert_eq!(empty.len(), 0);
     v.insert(caps::Capability::CAP_CHOWN);
     caps::drop(None, caps::CapSet::Ambient, caps::Capability::CAP_CHOWN).unwrap();
-    assert!(caps::set(None, caps::CapSet::Ambient, v).is_err());
+    assert!(caps::set(None, caps::CapSet::Ambient, &v).is_err());
 }
