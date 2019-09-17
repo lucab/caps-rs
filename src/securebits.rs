@@ -4,6 +4,8 @@
 //! flags, which can be used to disable special handling of capabilities
 //! for UID 0 (root).
 
+use failure::ResultExt;
+
 use crate::errors::*;
 use crate::nr;
 
@@ -13,10 +15,7 @@ pub fn has_keepcaps() -> Result<bool> {
     match ret {
         0 => Ok(false),
         1 => Ok(true),
-        _ => {
-            Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-                .chain_err(|| "PR_GET_KEEPCAPS error"))
-        }
+        _ => Err(Error::Sys(errno::errno())).context("PR_GET_KEEPCAPS error")?,
     }
 }
 
@@ -26,9 +25,6 @@ pub fn set_keepcaps(keep_caps: bool) -> Result<()> {
     let ret = unsafe { libc::prctl(nr::PR_SET_KEEPCAPS, flag, 0, 0) };
     match ret {
         0 => Ok(()),
-        _ => {
-            Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-                .chain_err(|| "PR_SET_KEEPCAPS error"))
-        }
+        _ => Err(Error::Sys(errno::errno())).context("PR_SET_KEEPCAPS error")?,
     }
 }

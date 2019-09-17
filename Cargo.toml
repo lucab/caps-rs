@@ -15,7 +15,7 @@ exclude = [
 
 [dependencies]
 errno = "0.2"
-error-chain = {version = "0.12", default-features = false}
+failure = "0.1"
 libc = "0.2"
 
 [package.metadata.release]

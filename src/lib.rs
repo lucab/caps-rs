@@ -26,8 +26,8 @@ mod nr; // All kernel-related constants
 pub mod runtime; // Features/legacy detection at runtime
 pub mod securebits; // Thread security bits
 
-use error_chain::bail;
 use errors::*;
+use failure::bail;
 use std::iter::FromIterator;
 
 /// Linux capabilities sets.
@@ -169,7 +169,7 @@ impl std::fmt::Display for Capability {
 }
 
 impl std::str::FromStr for Capability {
-    type Err = errors::Error;
+    type Err = failure::Error;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
@@ -211,7 +211,7 @@ impl std::str::FromStr for Capability {
             "CAP_WAKE_ALARM" => Ok(Capability::CAP_WAKE_ALARM),
             "CAP_BLOCK_SUSPEND" => Ok(Capability::CAP_BLOCK_SUSPEND),
             "CAP_AUDIT_READ" => Ok(Capability::CAP_AUDIT_READ),
-            _ => Err(ErrorKind::InvalidCapName(s.to_string()).into()),
+            _ => Err(Error::InvalidCapName(s.to_string()))?,
         }
     }
 }
@@ -385,35 +385,39 @@ pub fn to_canonical(name: &str) -> String {
     }
 }
 
-#[test]
-fn test_all_roundtrip() {
-    let all = all();
-    assert!(all.len() > 0);
-    for c in all {
-        let name = c.to_string();
-        let parsed: Capability = name.parse().unwrap();
-        assert_eq!(c, parsed);
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_all_roundtrip() {
+        let all = all();
+        assert!(all.len() > 0);
+        for c in all {
+            let name = c.to_string();
+            let parsed: Capability = name.parse().unwrap();
+            assert_eq!(c, parsed);
+        }
     }
-}
 
-#[test]
-fn test_parse_invalid() {
-    use std::str::FromStr;
-    let p1 = Capability::from_str("CAP_FOO");
-    let p1_err = p1.unwrap_err();
-    assert!(p1_err.description().contains("invalid"));
-    assert!(format!("{}", p1_err).contains("CAP_FOO"));
-    let p2: Result<Capability> = "CAP_BAR".parse();
-    assert!(p2.is_err());
-}
+    #[test]
+    fn test_parse_invalid() {
+        use std::str::FromStr;
+        let p1 = Capability::from_str("CAP_FOO");
+        let p1_err = p1.unwrap_err();
+        assert!(format!("{}", p1_err).contains("CAP_FOO"));
+        let p2: Result<Capability> = "CAP_BAR".parse();
+        assert!(p2.is_err());
+    }
 
-#[test]
-fn test_to_canonical() {
-    use std::str::FromStr;
-    let p1 = "foo";
-    assert!(Capability::from_str(&to_canonical(p1)).is_err());
-    let p2 = "sys_admin";
-    assert!(Capability::from_str(&to_canonical(p2)).is_ok());
-    let p3 = "CAP_SYS_CHROOT";
-    assert!(Capability::from_str(&to_canonical(p3)).is_ok());
+    #[test]
+    fn test_to_canonical() {
+        use std::str::FromStr;
+        let p1 = "foo";
+        assert!(Capability::from_str(&to_canonical(p1)).is_err());
+        let p2 = "sys_admin";
+        assert!(Capability::from_str(&to_canonical(p2)).is_ok());
+        let p3 = "CAP_SYS_CHROOT";
+        assert!(Capability::from_str(&to_canonical(p3)).is_ok());
+    }
 }

@@ -1,26 +1,16 @@
 //! Error handling.
 
-use error_chain::error_chain;
+use failure::Fail;
 
-error_chain! {
-    errors {
-        /// Parsing error due to invalid capability name.
-        InvalidCapName(name: String) {
-            description("invalid capability name")
-            display("invalid capability name: '{}'", name)
-        }
-        /// Syscall error, as `errno(3)`.
-        Sys(errno: errno::Errno) {
-            description("syscall failed")
-            display("{}", errno)
-        }
-    }
-}
+pub type Result<T> = core::result::Result<T, failure::Error>;
 
-#[test]
-fn test_sys_errno() {
-    let eperm = errno::Errno(1);
-    let err = ErrorKind::Sys(eperm);
-    assert!(err.description().contains("syscall failed"));
-    assert!(format!("{}", err).contains("Operation not permitted"));
+#[derive(Debug, Fail)]
+pub enum Error {
+    /// Parsing error due to invalid capability name.
+    #[fail(display = "invalid capability name: '{}'", _0)]
+    InvalidCapName(String),
+
+    /// Syscall error, as `errno(3)`.
+    #[fail(display = "syscall failed with '{}'", _0)]
+    Sys(errno::Errno),
 }
