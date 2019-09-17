@@ -1,5 +1,3 @@
-extern crate caps;
-
 use caps::{CapSet, Capability, CapsHashSet};
 
 fn main() {

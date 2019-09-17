@@ -6,9 +6,6 @@
 //! This is a caps example ONLY: do NOT panic/unwrap/assert
 //! in production code!
 
-extern crate caps;
-extern crate libc;
-
 use caps::{CapSet, Capability};
 
 fn main() {
