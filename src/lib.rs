@@ -211,20 +211,20 @@ impl std::str::FromStr for Capability {
             "CAP_WAKE_ALARM" => Ok(Capability::CAP_WAKE_ALARM),
             "CAP_BLOCK_SUSPEND" => Ok(Capability::CAP_BLOCK_SUSPEND),
             "CAP_AUDIT_READ" => Ok(Capability::CAP_AUDIT_READ),
-            _ => Err(Error::InvalidCapName(s.to_string()))?,
+            _ => Err(Error::InvalidCapName(s.to_string()).into()),
         }
     }
 }
 
 impl Capability {
     /// Returns the bitmask corresponding to this capability value.
-    #[cfg_attr(feature = "cargo-clippy", allow(trivially_copy_pass_by_ref))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::trivially_copy_pass_by_ref))]
     pub fn bitmask(&self) -> u64 {
         1u64 << (*self as u8)
     }
 
     /// Returns the index of this capability, i.e. its kernel-defined value.
-    #[cfg_attr(feature = "cargo-clippy", allow(trivially_copy_pass_by_ref))]
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::trivially_copy_pass_by_ref))]
     pub fn index(&self) -> u8 {
         (*self as u8)
     }

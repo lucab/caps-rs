@@ -4,7 +4,7 @@ use super::{CapSet, Capability};
 use crate::errors::*;
 use crate::nr;
 
-#[allow(unknown_lints, unreadable_literal)]
+#[allow(unknown_lints, clippy::unreadable_literal)]
 const CAPS_V3: u32 = 0x20080522;
 
 fn capget(hdr: &mut CapUserHeader, data: &mut CapUserData) -> Result<()> {
