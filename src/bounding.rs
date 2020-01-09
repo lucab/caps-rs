@@ -7,8 +7,8 @@ use nr;
 
 pub fn clear() -> Result<()> {
     for c in super::all() {
-        if try!(has_cap(c)) {
-            try!(drop(c));
+        if has_cap(c)? {
+            drop(c)?;
         }
     }
     Ok(())
@@ -40,7 +40,7 @@ pub fn has_cap(cap: Capability) -> Result<bool> {
 pub fn read() -> Result<super::CapsHashSet> {
     let mut res = super::CapsHashSet::new();
     for c in super::all() {
-        if try!(has_cap(c)) {
+        if has_cap(c)? {
             res.insert(c);
         }
     }
