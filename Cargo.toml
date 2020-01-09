@@ -1,6 +1,6 @@
 [package]
 name = "caps"
-version = "0.3.4-alpha.0"
+version = "0.3.5-alpha.0"
 authors = ["Luca Bruno <lucab@debian.org>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/lucab/caps-rs"
@@ -19,9 +19,8 @@ libc = "0.2"
 
 [package.metadata.release]
 sign-commit = true
-upload-doc = false
 disable-publish = true
 disable-push = true
 pre-release-commit-message = "cargo: caps release {{version}}"
-pro-release-commit-message = "cargo: development version bump"
+post-release-commit-message = "cargo: development version bump"
 tag-message = "caps {{version}}"
