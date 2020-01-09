@@ -30,7 +30,7 @@ pub fn has_cap(tid: i32, cset: CapSet, cap: Capability) -> Result<bool> {
         pid: tid,
     };
     let mut data: CapUserData = Default::default();
-    try!(capget(&mut hdr, &mut data));
+    capget(&mut hdr, &mut data)?;
     let caps: u64 = match cset {
         CapSet::Effective => (u64::from(data.effective_s1) << 32) + u64::from(data.effective_s0),
         CapSet::Inheritable => {
@@ -49,7 +49,7 @@ pub fn clear(tid: i32, cset: CapSet) -> Result<()> {
         pid: tid,
     };
     let mut data: CapUserData = Default::default();
-    try!(capget(&mut hdr, &mut data));
+    capget(&mut hdr, &mut data)?;
     match cset {
         CapSet::Effective => {
             data.effective_s0 = 0;
@@ -76,7 +76,7 @@ pub fn read(tid: i32, cset: CapSet) -> Result<super::CapsHashSet> {
         pid: tid,
     };
     let mut data: CapUserData = Default::default();
-    try!(capget(&mut hdr, &mut data));
+    capget(&mut hdr, &mut data)?;
     let caps: u64 = match cset {
         CapSet::Effective => (u64::from(data.effective_s1) << 32) + u64::from(data.effective_s0),
         CapSet::Inheritable => {
@@ -100,7 +100,7 @@ pub fn set(tid: i32, cset: CapSet, value: super::CapsHashSet) -> Result<()> {
         pid: tid,
     };
     let mut data: CapUserData = Default::default();
-    try!(capget(&mut hdr, &mut data));
+    capget(&mut hdr, &mut data)?;
     {
         let (s1, s0) = match cset {
             CapSet::Effective => (&mut data.effective_s1, &mut data.effective_s0),
@@ -112,32 +112,32 @@ pub fn set(tid: i32, cset: CapSet, value: super::CapsHashSet) -> Result<()> {
         *s0 = 0;
         for c in value {
             match c.index() {
-                0...31 => {
+                0..=31 => {
                     *s0 |= c.bitmask() as u32;
                 }
-                32...63 => {
+                32..=63 => {
                     *s1 |= (c.bitmask() >> 32) as u32;
                 }
                 _ => bail!("overlarge cap index {}", c.index()),
             }
         }
     }
-    try!(capset(&mut hdr, &data));
+    capset(&mut hdr, &data)?;
     Ok(())
 }
 
 pub fn drop(tid: i32, cset: CapSet, cap: Capability) -> Result<()> {
-    let mut caps = try!(read(tid, cset));
+    let mut caps = read(tid, cset)?;
     if caps.remove(&cap) {
-        try!(set(tid, cset, caps));
+        set(tid, cset, caps)?;
     };
     Ok(())
 }
 
 pub fn raise(tid: i32, cset: CapSet, cap: Capability) -> Result<()> {
-    let mut caps = try!(read(tid, cset));
+    let mut caps = read(tid, cset)?;
     if caps.insert(cap) {
-        try!(set(tid, cset, caps));
+        set(tid, cset, caps)?;
     };
     Ok(())
 }

@@ -69,7 +69,7 @@ pub fn raise(cap: Capability) -> Result<()> {
 pub fn read() -> Result<super::CapsHashSet> {
     let mut res = super::CapsHashSet::new();
     for c in super::all() {
-        if try!(has_cap(c)) {
+        if has_cap(c)? {
             res.insert(c);
         }
     }
@@ -79,9 +79,9 @@ pub fn read() -> Result<super::CapsHashSet> {
 pub fn set(value: &super::CapsHashSet) -> Result<()> {
     for c in super::all() {
         if value.contains(&c) {
-            try!(raise(c));
+            raise(c)?;
         } else {
-            try!(drop(c));
+            drop(c)?;
         };
     }
     Ok(())
