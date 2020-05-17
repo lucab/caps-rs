@@ -7,7 +7,7 @@ fn main() {
     println!("Ambient set supported: {}", amb_set);
 
     let all = caps::all();
-    let supported = runtime::all_supported();
+    let supported = runtime::thread_all_supported();
     let missing = all.difference(&supported);
     println!("Unsupported new capabilities: {:?}", missing);
 }

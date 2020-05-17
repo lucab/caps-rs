@@ -15,6 +15,10 @@ error_chain! {
             display("{}", errno)
         }
     }
+    foreign_links {
+        Io(std::io::Error);
+        ParseInt(std::num::ParseIntError);
+    }
 }
 
 #[test]
