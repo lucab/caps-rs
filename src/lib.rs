@@ -233,7 +233,7 @@ impl Capability {
     /// Returns the index of this capability, i.e. its kernel-defined value.
     #[allow(clippy::trivially_copy_pass_by_ref)]
     pub fn index(&self) -> u8 {
-        (*self as u8)
+        *self as u8
     }
 }
 
