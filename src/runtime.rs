@@ -18,7 +18,7 @@ pub fn ambient_set_supported() -> Result<()> {
     Ok(())
 }
 
-/// Return an `HashSet` with all capabilities supported by the running kernel.
+/// Return the set of all capabilities supported on the current thread.
 pub fn all_supported() -> CapsHashSet {
     let mut supported = super::all();
     for c in super::all() {
