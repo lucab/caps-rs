@@ -330,7 +330,7 @@ pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
     }
 }
 
-/// Return an `HashSet` with all known capabilities.
+/// Return the set of all capabilities supported by this library.
 pub fn all() -> CapsHashSet {
     let slice = vec![
         Capability::CAP_CHOWN,
