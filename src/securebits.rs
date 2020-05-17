@@ -4,11 +4,8 @@
 //! flags, which can be used to disable special handling of capabilities
 //! for UID 0 (root).
 
-use errno;
-use libc;
-
-use errors::*;
-use nr;
+use crate::errors::*;
+use crate::nr;
 
 /// Return whether the current thread's "keep capabilities" flag is set.
 pub fn has_keepcaps() -> Result<bool> {

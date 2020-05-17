@@ -1,8 +1,7 @@
 # caps
 
-[![Build Status](https://travis-ci.org/lucab/caps-rs.svg?branch=master)](https://travis-ci.org/lucab/caps-rs)
+[![Build Status](https://travis-ci.com/lucab/caps-rs.svg?branch=master)](https://travis-ci.com/lucab/caps-rs)
 [![crates.io](https://img.shields.io/crates/v/caps.svg)](https://crates.io/crates/caps)
-[![LoC](https://tokei.rs/b1/github/lucab/caps-rs?category=code)](https://github.com/lucab/caps-rs)
 [![Documentation](https://docs.rs/caps/badge.svg)](https://docs.rs/caps)
 
 A pure-Rust library to work with Linux capabilities.
@@ -24,7 +23,6 @@ This library tries to achieve the following goals:
 ## Example
 
 ```rust
-extern crate caps;
 use caps::{Capability, CapSet};
 
 fn manipulate_caps() {

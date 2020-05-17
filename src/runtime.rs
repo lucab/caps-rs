@@ -19,7 +19,7 @@ println!("Supported capabilities: {}", all.len());
 !*/
 
 use super::{ambient, CapSet, Capability, CapsHashSet};
-use errors::*;
+use crate::errors::*;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
