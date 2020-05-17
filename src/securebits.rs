@@ -4,9 +4,6 @@
 //! flags, which can be used to disable special handling of capabilities
 //! for UID 0 (root).
 
-use errno;
-use libc;
-
 use crate::errors::*;
 use crate::nr;
 

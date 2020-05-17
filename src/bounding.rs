@@ -1,9 +1,6 @@
-use errno;
-use libc;
-
-use super::Capability;
 use crate::errors::*;
 use crate::nr;
+use crate::Capability;
 
 pub fn clear() -> Result<()> {
     for c in super::all() {

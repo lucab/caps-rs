@@ -1,7 +1,5 @@
 //! Error handling.
 
-use errno;
-
 error_chain! {
     errors {
         /// Parsing error due to invalid capability name.
