@@ -7,8 +7,8 @@
 use errno;
 use libc;
 
-use errors::*;
-use nr;
+use crate::errors::*;
+use crate::nr;
 
 /// Return whether the current thread's "keep capabilities" flag is set.
 pub fn has_keepcaps() -> Result<bool> {

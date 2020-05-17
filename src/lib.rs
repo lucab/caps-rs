@@ -31,7 +31,7 @@ mod nr; // All kernel-related constants
 pub mod runtime; // Features/legacy detection at runtime
 pub mod securebits; // Thread security bits
 
-use errors::*;
+use crate::errors::*;
 use std::iter::FromIterator;
 
 /// Linux capabilities sets.

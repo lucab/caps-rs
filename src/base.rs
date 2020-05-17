@@ -2,8 +2,8 @@ use errno;
 use libc;
 
 use super::{CapSet, Capability};
-use errors::*;
-use nr;
+use crate::errors::*;
+use crate::nr;
 
 #[allow(clippy::unreadable_literal)]
 const CAPS_V3: u32 = 0x20080522;
