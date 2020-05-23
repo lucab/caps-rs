@@ -18,18 +18,19 @@
 //! }
 //! ```
 
-#[macro_use]
-extern crate error_chain;
+pub mod errors;
+pub mod runtime;
+pub mod securebits;
 
-mod ambient; // Implementation of Ambient set
-mod base; // Implementation of POSIX sets
-mod bounding; // Implementation of Bounding set
-pub mod errors; // Error wrapping
-mod nr; // All kernel-related constants
-pub mod runtime; // Features/legacy detection at runtime
-pub mod securebits; // Thread security bits
+mod ambient;
+// Implementation of POSIX sets
+mod base;
+// Implementation of Bounding set
+mod bounding;
+// All kernel-related constants
+mod nr;
 
-use crate::errors::*;
+use crate::errors::CapsError;
 use std::iter::FromIterator;
 
 /// Linux capabilities sets.
@@ -174,7 +175,7 @@ impl std::fmt::Display for Capability {
 }
 
 impl std::str::FromStr for Capability {
-    type Err = errors::Error;
+    type Err = CapsError;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
@@ -216,7 +217,7 @@ impl std::str::FromStr for Capability {
             "CAP_WAKE_ALARM" => Ok(Capability::CAP_WAKE_ALARM),
             "CAP_BLOCK_SUSPEND" => Ok(Capability::CAP_BLOCK_SUSPEND),
             "CAP_AUDIT_READ" => Ok(Capability::CAP_AUDIT_READ),
-            _ => Err(ErrorKind::InvalidCapName(s.to_string()).into()),
+            _ => Err(format!("invalid capability: {}", s).into()),
         }
     }
 }
@@ -243,13 +244,13 @@ pub type CapsHashSet = std::collections::HashSet<Capability>;
 /// Check if set `cset` for thread `tid` contains capability `cap`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot check Ambient or Bounding capabilities of other processes.
-pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool> {
+pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool, CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::has_cap(cap),
         CapSet::Bounding if t == 0 => bounding::has_cap(cap),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::has_cap(t, cset, cap),
-        _ => bail!("operation not supported"),
+        _ => Err("operation not supported".into()),
     }
 }
 
@@ -258,13 +259,13 @@ pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool> 
 /// Return current content of set `cset` for thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot read Ambient or Bounding capabilities of other processes.
-pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet> {
+pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::read(),
         CapSet::Bounding if t == 0 => bounding::read(),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::read(t, cset),
-        _ => bail!("operation not supported"),
+        _ => Err("operation not supported".into()),
     }
 }
 
@@ -274,12 +275,12 @@ pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be set in Bounding set.
-pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<()> {
+pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<(), CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::set(&value),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
-        _ => bail!("operation not supported"),
+        _ => Err("operation not supported".into()),
     }
 }
 
@@ -288,13 +289,13 @@ pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<()> {
 /// All capabilities will be cleared from set `cset` for thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient or Bounding set of other processes.
-pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<()> {
+pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<(), CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::clear(),
         CapSet::Bounding if t == 0 => bounding::clear(),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::clear(t, cset),
-        _ => bail!("operation not supported"),
+        _ => Err("operation not supported".into()),
     }
 }
 
@@ -304,12 +305,12 @@ pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<()> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be raised in Bounding set.
-pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
+pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::raise(cap),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::raise(t, cset, cap),
-        _ => bail!("operation not supported"),
+        _ => Err("operation not supported".into()),
     }
 }
 
@@ -318,13 +319,13 @@ pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
 /// Capabilities `cap` will be dropped from set `cset` of thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient and Bounding sets of other processes.
-pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
+pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::drop(cap),
         CapSet::Bounding if t == 0 => bounding::drop(cap),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::drop(t, cset, cap),
-        _ => bail!("operation not supported"),
+        _ => Err("operation not supported".into()),
     }
 }
 
@@ -390,35 +391,40 @@ pub fn to_canonical(name: &str) -> String {
     }
 }
 
-#[test]
-fn test_all_roundtrip() {
-    let all = all();
-    assert!(all.len() > 0);
-    for c in all {
-        let name = c.to_string();
-        let parsed: Capability = name.parse().unwrap();
-        assert_eq!(c, parsed);
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_all_roundtrip() {
+        let all = all();
+        assert!(all.len() > 0);
+        for c in all {
+            let name = c.to_string();
+            let parsed: Capability = name.parse().unwrap();
+            assert_eq!(c, parsed);
+        }
     }
-}
 
-#[test]
-fn test_parse_invalid() {
-    use std::str::FromStr;
-    let p1 = Capability::from_str("CAP_FOO");
-    let p1_err = p1.unwrap_err();
-    assert!(p1_err.description().contains("invalid"));
-    assert!(format!("{}", p1_err).contains("CAP_FOO"));
-    let p2: Result<Capability> = "CAP_BAR".parse();
-    assert!(p2.is_err());
-}
+    #[test]
+    fn test_parse_invalid() {
+        use std::str::FromStr;
+        let p1 = Capability::from_str("CAP_FOO");
+        let p1_err = p1.unwrap_err();
+        assert!(p1_err.to_string().contains("invalid"));
+        assert!(format!("{}", p1_err).contains("CAP_FOO"));
+        let p2: Result<Capability, CapsError> = "CAP_BAR".parse();
+        assert!(p2.is_err());
+    }
 
-#[test]
-fn test_to_canonical() {
-    use std::str::FromStr;
-    let p1 = "foo";
-    assert!(Capability::from_str(&to_canonical(p1)).is_err());
-    let p2 = "sys_admin";
-    assert!(Capability::from_str(&to_canonical(p2)).is_ok());
-    let p3 = "CAP_SYS_CHROOT";
-    assert!(Capability::from_str(&to_canonical(p3)).is_ok());
+    #[test]
+    fn test_to_canonical() {
+        use std::str::FromStr;
+        let p1 = "foo";
+        assert!(Capability::from_str(&to_canonical(p1)).is_err());
+        let p2 = "sys_admin";
+        assert!(Capability::from_str(&to_canonical(p2)).is_ok());
+        let p3 = "CAP_SYS_CHROOT";
+        assert!(Capability::from_str(&to_canonical(p3)).is_ok());
+    }
 }

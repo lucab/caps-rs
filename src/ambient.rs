@@ -1,17 +1,18 @@
-use crate::errors::*;
-use crate::nr;
-use crate::Capability;
+//! Implementation of Ambient set.
 
-pub fn clear() -> Result<()> {
+use crate::errors::CapsError;
+use crate::nr;
+use crate::{Capability, CapsHashSet};
+
+pub fn clear() -> Result<(), CapsError> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };
     match ret {
         0 => Ok(()),
-        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-            .chain_err(|| "PR_CAP_AMBIENT_CLEAR_ALL error")),
+        _ => Err(format!("PR_CAP_AMBIENT_CLEAR_ALL failure, errno {}", errno::errno()).into()),
     }
 }
 
-pub fn drop(cap: Capability) -> Result<()> {
+pub fn drop(cap: Capability) -> Result<(), CapsError> {
     let ret = unsafe {
         libc::prctl(
             nr::PR_CAP_AMBIENT,
@@ -23,12 +24,11 @@ pub fn drop(cap: Capability) -> Result<()> {
     };
     match ret {
         0 => Ok(()),
-        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-            .chain_err(|| "PR_CAP_AMBIENT_LOWER error")),
+        _ => Err(format!("PR_CAP_AMBIENT_LOWER failure, errno {}", errno::errno()).into()),
     }
 }
 
-pub fn has_cap(cap: Capability) -> Result<bool> {
+pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
     let ret = unsafe {
         libc::prctl(
             nr::PR_CAP_AMBIENT,
@@ -41,12 +41,11 @@ pub fn has_cap(cap: Capability) -> Result<bool> {
     match ret {
         0 => Ok(false),
         1 => Ok(true),
-        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-            .chain_err(|| "PR_CAP_AMBIENT_IS_SET error")),
+        _ => Err(format!("PR_CAP_AMBIENT_IS_SET failure, errno {}", errno::errno()).into()),
     }
 }
 
-pub fn raise(cap: Capability) -> Result<()> {
+pub fn raise(cap: Capability) -> Result<(), CapsError> {
     let ret = unsafe {
         libc::prctl(
             nr::PR_CAP_AMBIENT,
@@ -58,12 +57,11 @@ pub fn raise(cap: Capability) -> Result<()> {
     };
     match ret {
         0 => Ok(()),
-        _ => Err(Error::from_kind(ErrorKind::Sys(errno::errno()))
-            .chain_err(|| "PR_CAP_AMBIENT_RAISE error")),
+        _ => Err(format!("PR_CAP_AMBIENT_RAISE failure, errno {}", errno::errno()).into()),
     }
 }
 
-pub fn read() -> Result<super::CapsHashSet> {
+pub fn read() -> Result<CapsHashSet, CapsError> {
     let mut res = super::CapsHashSet::new();
     for c in super::all() {
         if has_cap(c)? {
@@ -73,7 +71,7 @@ pub fn read() -> Result<super::CapsHashSet> {
     Ok(res)
 }
 
-pub fn set(value: &super::CapsHashSet) -> Result<()> {
+pub fn set(value: &super::CapsHashSet) -> Result<(), CapsError> {
     for c in super::all() {
         if value.contains(&c) {
             raise(c)?;

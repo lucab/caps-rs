@@ -1,28 +1,20 @@
 //! Error handling.
 
-error_chain! {
-    errors {
-        /// Parsing error due to invalid capability name.
-        InvalidCapName(name: String) {
-            description("invalid capability name")
-            display("invalid capability name: '{}'", name)
-        }
-        /// Syscall error, as `errno(3)`.
-        Sys(errno: errno::Errno) {
-            description("syscall failed")
-            display("{}", errno)
-        }
-    }
-    foreign_links {
-        Io(std::io::Error);
-        ParseInt(std::num::ParseIntError);
+use thiserror::Error;
+
+/// Library errors.
+#[derive(Error, Debug)]
+#[error("caps error: {0}")]
+pub struct CapsError(pub(crate) String);
+
+impl From<&str> for CapsError {
+    fn from(arg: &str) -> Self {
+        Self(arg.to_string())
     }
 }
 
-#[test]
-fn test_sys_errno() {
-    let eperm = errno::Errno(1);
-    let err = ErrorKind::Sys(eperm);
-    assert!(err.description().contains("syscall failed"));
-    assert!(format!("{}", err).contains("Operation not permitted"));
+impl From<String> for CapsError {
+    fn from(arg: String) -> Self {
+        Self(arg)
+    }
 }
