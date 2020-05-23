@@ -1,27 +1,54 @@
+---
 language: rust
+os: linux
+dist: bionic
 
-rust:
-  - 1.43.0  # pinned toolchain for clippy
-  - 1.36.0  # minimum supported toolchain
-  - stable
-  - beta
-  - nightly
-
-matrix:
+jobs:
   allow_failures:
     - rust: nightly
-
-env:
-  global:
-    - CLIPPY_RUST_VERSION=1.43.0
-
-before_script:
-  - bash -c 'if [[ "$TRAVIS_RUST_VERSION" == "$CLIPPY_RUST_VERSION" ]]; then
-      rustup component add clippy;
-    fi'
-
-script:
-  - cargo test
-  - bash -c 'if [[ "$TRAVIS_RUST_VERSION" == "$CLIPPY_RUST_VERSION" ]]; then
-      cargo clippy -- -D warnings;
-    fi'
+  include:
+    - name: "Test with nightly toolchain"
+      arch: amd64
+      rust: nightly
+      script:
+        - cargo test
+    - name: "Test with beta toolchain"
+      arch: amd64
+      rust: beta
+      script:
+        - cargo test
+    - name: "Test with stable toolchain on amd64"
+      arch: amd64
+      rust: stable
+      script:
+        - cargo test
+# Builders temporarily unavailable, enable this later on.
+#    - name: "Test with stable toolchain on aarch64"
+#      arch: arm64
+#      rust: stable
+#      script:
+#        - cargo test
+    - name: "Test with stable toolchain on ppc64le"
+      arch: ppc64le
+      rust: stable
+      script:
+        - cargo test
+    - name: "Test with stable toolchain on s390x"
+      arch: s390x
+      rust: stable
+      script:
+        - cargo test
+    - name: "Test with minimum supported toolchain"
+      arch: amd64
+      rust: 1.36.0
+      script:
+        - cargo test --release
+    - name: "Lints with pinned toolchain"
+      arch: amd64
+      rust: 1.43.0
+      before_script:
+        - rustup component add clippy
+        - rustup component add rustfmt
+      script:
+        - cargo clippy -- -D warnings
+        - cargo fmt -- --check -l
