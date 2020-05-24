@@ -1,5 +1,3 @@
-extern crate caps;
-
 use caps::Capability;
 use std::str::FromStr;
 

@@ -1,5 +1,3 @@
-extern crate caps;
-
 #[test]
 fn test_ambient_has_cap() {
     caps::has_cap(None, caps::CapSet::Ambient, caps::Capability::CAP_CHOWN).unwrap();

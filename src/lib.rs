@@ -1,33 +1,42 @@
-//! A pure-Rust library to work with Linux capabilities.
-//!
-//! It provides support for manipulating capabilities available
-//! in modern Linux kernel. It supports traditional POSIX sets
-//! (Effective, Inheritable, Permitted) as well as Linux-specific
-//! Ambient and Bounding capabilities sets.
-//!
-//! ```rust
-//! use caps::{Capability, CapSet};
-//!
-//! fn manipulate_caps() {
-//!     if caps::has_cap(None, CapSet::Permitted, Capability::CAP_SYS_NICE).unwrap() {
-//!         caps::drop(None, CapSet::Effective, Capability::CAP_SYS_NICE).unwrap();
-//!         let s = caps::read(None, CapSet::Effective).unwrap();
-//!         assert_eq!(s.contains(&Capability::CAP_SYS_NICE), false);
-//!         caps::clear(None, CapSet::Effective).unwrap();
-//!     };
-//! }
-//! ```
+/*!
+A pure-Rust library to work with Linux capabilities.
+
+It provides support for manipulating capabilities available on modern Linux
+kernels. It supports traditional POSIX sets (Effective, Inheritable, Permitted)
+as well as Linux-specific Ambient and Bounding capabilities sets.
+
+```rust
+type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
+
+fn manipulate_caps() -> ExResult<()> {
+    use caps::{Capability, CapSet};
+
+    if caps::has_cap(None, CapSet::Permitted, Capability::CAP_SYS_NICE)? {
+        caps::drop(None, CapSet::Effective, Capability::CAP_SYS_NICE)?;
+        let effective = caps::read(None, CapSet::Effective)?;
+        assert_eq!(effective.contains(&Capability::CAP_SYS_NICE), false);
+
+        caps::clear(None, CapSet::Effective)?;
+        let cleared = caps::read(None, CapSet::Effective)?;
+        assert_eq!(cleared.is_empty(), true);
+    };
+
+    Ok(())
+}
+```
+!*/
 
 pub mod errors;
 pub mod runtime;
 pub mod securebits;
 
+// Implementation of Bounding set.
 mod ambient;
-// Implementation of POSIX sets
+// Implementation of POSIX sets.
 mod base;
-// Implementation of Bounding set
+// Implementation of Bounding set.
 mod bounding;
-// All kernel-related constants
+// All kernel-related constants.
 mod nr;
 
 use crate::errors::CapsError;

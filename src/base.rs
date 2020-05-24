@@ -82,7 +82,7 @@ pub fn read(tid: i32, cset: CapSet) -> Result<CapsHashSet, CapsError> {
         CapSet::Permitted => (u64::from(data.permitted_s1) << 32) + u64::from(data.permitted_s0),
         CapSet::Bounding | CapSet::Ambient => return Err("not a base set".into()),
     };
-    let mut res = super::CapsHashSet::new();
+    let mut res = CapsHashSet::new();
     for c in super::all() {
         if (caps & c.bitmask()) != 0 {
             res.insert(c);

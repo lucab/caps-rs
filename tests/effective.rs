@@ -1,5 +1,3 @@
-extern crate caps;
-
 #[test]
 fn test_effective_has_cap() {
     caps::has_cap(None, caps::CapSet::Effective, caps::Capability::CAP_CHOWN).unwrap();

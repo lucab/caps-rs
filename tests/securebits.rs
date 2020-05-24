@@ -1,4 +1,3 @@
-extern crate caps;
 use caps::securebits;
 
 #[test]

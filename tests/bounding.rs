@@ -1,5 +1,3 @@
-extern crate caps;
-
 #[test]
 fn test_bounding_has_cap() {
     caps::has_cap(
