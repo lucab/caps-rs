@@ -23,35 +23,38 @@ This library tries to achieve the following goals:
 ## Example
 
 ```rust
-use caps::{Capability, CapSet};
+type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
 
-fn manipulate_caps() {
+fn manipulate_caps() -> ExResult<()> {
+    use caps::{Capability, CapSet};
+
     // Retrieve permitted set.
-    let cur = caps::read(None, CapSet::Permitted).unwrap();
+    let cur = caps::read(None, CapSet::Permitted)?;
     println!("Current permitted caps: {:?}.", cur);
     
     // Retrieve effective set.
-    let cur = caps::read(None, CapSet::Effective).unwrap();
+    let cur = caps::read(None, CapSet::Effective)?;
     println!("Current effective caps: {:?}.", cur);
     
     // Check if CAP_CHOWN is in permitted set.
-    let perm_chown = caps::has_cap(None, CapSet::Permitted, Capability::CAP_CHOWN).unwrap();
-    if !perm_chown.unwrap() {
-        println!("Try running this as root!");
-        return;
+    let perm_chown = caps::has_cap(None, CapSet::Permitted, Capability::CAP_CHOWN)?;
+    if !perm_chown {
+        return Err("Try running this as root!".into());
     }
 
     // Clear all effective caps.
-    caps::clear(None, CapSet::Effective).unwrap();
+    caps::clear(None, CapSet::Effective)?;
     println!("Cleared effective caps.");
-    let cur = caps::read(None, CapSet::Effective).unwrap();
+    let cur = caps::read(None, CapSet::Effective)?;
     println!("Current effective caps: {:?}.", cur);
 
     // Since `CAP_CHOWN` is still in permitted, it can be raised again.
-    caps::raise(None, CapSet::Effective, Capability::CAP_CHOWN).unwrap();
+    caps::raise(None, CapSet::Effective, Capability::CAP_CHOWN)?;
     println!("Raised CAP_CHOWN in effective set.");
-    let cur = caps::read(None, CapSet::Effective).unwrap();
+    let cur = caps::read(None, CapSet::Effective)?;
     println!("Current effective caps: {:?}.", cur);
+
+    Ok(())
 }
 ```
 

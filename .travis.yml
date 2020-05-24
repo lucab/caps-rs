@@ -4,8 +4,10 @@ os: linux
 dist: bionic
 
 jobs:
+  fast_finish: true
   allow_failures:
     - rust: nightly
+    - arch: ppc64le
   include:
     - name: "Test with nightly toolchain"
       arch: amd64
@@ -22,12 +24,11 @@ jobs:
       rust: stable
       script:
         - cargo test
-# Builders temporarily unavailable, enable this later on.
-#    - name: "Test with stable toolchain on aarch64"
-#      arch: arm64
-#      rust: stable
-#      script:
-#        - cargo test
+    - name: "Test with stable toolchain on aarch64"
+      arch: arm64
+      rust: stable
+      script:
+        - cargo test
     - name: "Test with stable toolchain on ppc64le"
       arch: ppc64le
       rust: stable

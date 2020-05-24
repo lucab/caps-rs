@@ -1,33 +1,42 @@
-//! A pure-Rust library to work with Linux capabilities.
-//!
-//! It provides support for manipulating capabilities available
-//! in modern Linux kernel. It supports traditional POSIX sets
-//! (Effective, Inheritable, Permitted) as well as Linux-specific
-//! Ambient and Bounding capabilities sets.
-//!
-//! ```rust
-//! use caps::{Capability, CapSet};
-//!
-//! fn manipulate_caps() {
-//!     if caps::has_cap(None, CapSet::Permitted, Capability::CAP_SYS_NICE).unwrap() {
-//!         caps::drop(None, CapSet::Effective, Capability::CAP_SYS_NICE).unwrap();
-//!         let s = caps::read(None, CapSet::Effective).unwrap();
-//!         assert_eq!(s.contains(&Capability::CAP_SYS_NICE), false);
-//!         caps::clear(None, CapSet::Effective).unwrap();
-//!     };
-//! }
-//! ```
+/*!
+A pure-Rust library to work with Linux capabilities.
+
+It provides support for manipulating capabilities available on modern Linux
+kernels. It supports traditional POSIX sets (Effective, Inheritable, Permitted)
+as well as Linux-specific Ambient and Bounding capabilities sets.
+
+```rust
+type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
+
+fn manipulate_caps() -> ExResult<()> {
+    use caps::{Capability, CapSet};
+
+    if caps::has_cap(None, CapSet::Permitted, Capability::CAP_SYS_NICE)? {
+        caps::drop(None, CapSet::Effective, Capability::CAP_SYS_NICE)?;
+        let effective = caps::read(None, CapSet::Effective)?;
+        assert_eq!(effective.contains(&Capability::CAP_SYS_NICE), false);
+
+        caps::clear(None, CapSet::Effective)?;
+        let cleared = caps::read(None, CapSet::Effective)?;
+        assert_eq!(cleared.is_empty(), true);
+    };
+
+    Ok(())
+}
+```
+!*/
 
 pub mod errors;
 pub mod runtime;
 pub mod securebits;
 
+// Implementation of Bounding set.
 mod ambient;
-// Implementation of POSIX sets
+// Implementation of POSIX sets.
 mod base;
-// Implementation of Bounding set
+// Implementation of Bounding set.
 mod bounding;
-// All kernel-related constants
+// All kernel-related constants.
 mod nr;
 
 use crate::errors::CapsError;
@@ -275,10 +284,10 @@ pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be set in Bounding set.
-pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<(), CapsError> {
+pub fn set(tid: Option<i32>, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
-        CapSet::Ambient if t == 0 => ambient::set(&value),
+        CapSet::Ambient if t == 0 => ambient::set(value),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
         _ => Err("operation not supported".into()),
     }

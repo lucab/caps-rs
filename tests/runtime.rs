@@ -1,4 +1,3 @@
-extern crate caps;
 use caps::runtime;
 
 #[test]
