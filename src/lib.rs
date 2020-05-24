@@ -275,10 +275,10 @@ pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be set in Bounding set.
-pub fn set(tid: Option<i32>, cset: CapSet, value: CapsHashSet) -> Result<(), CapsError> {
+pub fn set(tid: Option<i32>, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
-        CapSet::Ambient if t == 0 => ambient::set(&value),
+        CapSet::Ambient if t == 0 => ambient::set(value),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
         _ => Err("operation not supported".into()),
     }

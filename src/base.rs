@@ -91,7 +91,7 @@ pub fn read(tid: i32, cset: CapSet) -> Result<CapsHashSet, CapsError> {
     Ok(res)
 }
 
-pub fn set(tid: i32, cset: CapSet, value: super::CapsHashSet) -> Result<(), CapsError> {
+pub fn set(tid: i32, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError> {
     let mut hdr = CapUserHeader {
         version: CAPS_V3,
         pid: tid,
@@ -126,7 +126,7 @@ pub fn set(tid: i32, cset: CapSet, value: super::CapsHashSet) -> Result<(), Caps
 pub fn drop(tid: i32, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
     let mut caps = read(tid, cset)?;
     if caps.remove(&cap) {
-        set(tid, cset, caps)?;
+        set(tid, cset, &caps)?;
     };
     Ok(())
 }
@@ -134,7 +134,7 @@ pub fn drop(tid: i32, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
 pub fn raise(tid: i32, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
     let mut caps = read(tid, cset)?;
     if caps.insert(cap) {
-        set(tid, cset, caps)?;
+        set(tid, cset, &caps)?;
     };
     Ok(())
 }
