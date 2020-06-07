@@ -7,7 +7,6 @@ jobs:
   fast_finish: true
   allow_failures:
     - rust: nightly
-    - arch: ppc64le
   include:
     - name: "Test with nightly toolchain"
       arch: amd64
@@ -46,7 +45,7 @@ jobs:
         - cargo test --release
     - name: "Lints with pinned toolchain"
       arch: amd64
-      rust: 1.43.0
+      rust: 1.44.0
       before_script:
         - rustup component add clippy
         - rustup component add rustfmt
