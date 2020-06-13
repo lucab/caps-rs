@@ -39,6 +39,7 @@ pub const CAP_WAKE_ALARM: u8 = 35;
 pub const CAP_BLOCK_SUSPEND: u8 = 36;
 pub const CAP_AUDIT_READ: u8 = 37;
 pub const CAP_PERFMON: u8 = 38;
+pub const CAP_BPF: u8 = 39;
 
 /* from <sys/prctl.h> */
 
