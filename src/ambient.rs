@@ -2,6 +2,7 @@
 
 use crate::errors::CapsError;
 use crate::nr;
+use crate::runtime;
 use crate::{Capability, CapsHashSet};
 
 pub fn clear() -> Result<(), CapsError> {
@@ -63,7 +64,7 @@ pub fn raise(cap: Capability) -> Result<(), CapsError> {
 
 pub fn read() -> Result<CapsHashSet, CapsError> {
     let mut res = super::CapsHashSet::new();
-    for c in super::all() {
+    for c in runtime::thread_all_supported() {
         if has_cap(c)? {
             res.insert(c);
         }
@@ -72,7 +73,7 @@ pub fn read() -> Result<CapsHashSet, CapsError> {
 }
 
 pub fn set(value: &super::CapsHashSet) -> Result<(), CapsError> {
-    for c in super::all() {
+    for c in runtime::thread_all_supported() {
         if value.contains(&c) {
             raise(c)?;
         } else {

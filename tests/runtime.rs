@@ -7,7 +7,8 @@ fn test_ambient_supported() {
 
 #[test]
 fn test_thread_all_supported() {
-    assert_eq!(runtime::thread_all_supported(), caps::all());
+    assert!(runtime::thread_all_supported().len() > 0);
+    assert!(runtime::thread_all_supported().len() <= caps::all().len());
 }
 
 #[test]
@@ -19,17 +20,13 @@ fn test_procfs_all_supported() {
     let thread = runtime::thread_all_supported();
     let all = caps::all();
 
+    assert!(thread.len() > 0);
+    assert!(thread.len() <= all.len());
     assert_eq!(
         p1,
         p2,
         "{:?}",
         p1.symmetric_difference(&p2).collect::<Vec<_>>()
-    );
-    assert_eq!(
-        p1,
-        all,
-        "{:?}",
-        p1.symmetric_difference(&all).collect::<Vec<_>>()
     );
     assert_eq!(
         p1,
