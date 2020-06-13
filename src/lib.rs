@@ -132,6 +132,8 @@ pub enum Capability {
     CAP_BLOCK_SUSPEND = nr::CAP_BLOCK_SUSPEND,
     /// `CAP_AUDIT_READ` (from Linux, >= 3.16).
     CAP_AUDIT_READ = nr::CAP_AUDIT_READ,
+    /// `CAP_PERFMON` (from Linux, >= 5.8).
+    CAP_PERFMON = nr::CAP_PERFMON,
     #[doc(hidden)]
     __Nonexhaustive,
 }
@@ -177,6 +179,7 @@ impl std::fmt::Display for Capability {
             Capability::CAP_WAKE_ALARM => "CAP_WAKE_ALARM",
             Capability::CAP_BLOCK_SUSPEND => "CAP_BLOCK_SUSPEND",
             Capability::CAP_AUDIT_READ => "CAP_AUDIT_READ",
+            Capability::CAP_PERFMON => "CAP_PERFMON",
             Capability::__Nonexhaustive => unreachable!("invalid capability"),
         };
         write!(f, "{}", name)
@@ -226,6 +229,7 @@ impl std::str::FromStr for Capability {
             "CAP_WAKE_ALARM" => Ok(Capability::CAP_WAKE_ALARM),
             "CAP_BLOCK_SUSPEND" => Ok(Capability::CAP_BLOCK_SUSPEND),
             "CAP_AUDIT_READ" => Ok(Capability::CAP_AUDIT_READ),
+            "CAP_PERFMON" => Ok(Capability::CAP_PERFMON),
             _ => Err(format!("invalid capability: {}", s).into()),
         }
     }
@@ -379,6 +383,7 @@ pub fn all() -> CapsHashSet {
         Capability::CAP_WAKE_ALARM,
         Capability::CAP_BLOCK_SUSPEND,
         Capability::CAP_AUDIT_READ,
+        Capability::CAP_PERFMON,
     ];
     CapsHashSet::from_iter(slice)
 }
