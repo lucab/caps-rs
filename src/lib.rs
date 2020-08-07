@@ -41,6 +41,7 @@ mod nr;
 
 use crate::errors::CapsError;
 use std::iter::FromIterator;
+use enum_iterator::IntoEnumIterator;
 
 /// Linux capabilities sets.
 ///
@@ -64,7 +65,7 @@ pub enum CapSet {
 ///
 /// All capabilities supported by Linux, including standard
 /// POSIX and custom ones. See `capabilities(7)`.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(IntoEnumIterator, PartialEq, Eq, Hash, Debug, Clone, Copy)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub enum Capability {
