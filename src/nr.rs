@@ -61,10 +61,15 @@ pub const CAPGET: i32 = 184;
 #[cfg(target_arch = "x86")]
 pub const CAPSET: i32 = 185;
 
-#[cfg(target_arch = "x86_64")]
+#[cfg(all(target_arch = "x86_64", target_pointer_width = "64"))]
 pub const CAPGET: i64 = 125;
-#[cfg(target_arch = "x86_64")]
+#[cfg(all(target_arch = "x86_64", target_pointer_width = "64"))]
 pub const CAPSET: i64 = 126;
+
+#[cfg(all(target_arch = "x86_64", target_pointer_width = "32"))]
+pub const CAPGET: i32 = 0x40000000 + 125;
+#[cfg(all(target_arch = "x86_64", target_pointer_width = "32"))]
+pub const CAPSET: i32 = 0x40000000 + 126;
 
 #[cfg(target_arch = "aarch64")]
 pub const CAPGET: i64 = 90;
