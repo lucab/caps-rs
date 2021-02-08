@@ -19,8 +19,7 @@ println!("Supported capabilities: {}", all.len());
 !*/
 
 use super::{ambient, CapSet, Capability, CapsHashSet};
-use crate::errors::CapsError;
-use std::io::Read;
+use std::io::{Error, ErrorKind, Read, Result};
 use std::path::{Path, PathBuf};
 
 /// Check whether the running kernel supports the ambient set.
@@ -28,7 +27,7 @@ use std::path::{Path, PathBuf};
 /// Ambient set was introduced in Linux kernel 4.3. On recent kernels
 /// where the ambient set is supported, this will return `Ok`.
 /// On a legacy kernel, an `Err` is returned instead.
-pub fn ambient_set_supported() -> Result<(), CapsError> {
+pub fn ambient_set_supported() -> Result<()> {
     ambient::has_cap(Capability::CAP_CHOWN)?;
     Ok(())
 }
@@ -37,7 +36,7 @@ pub fn ambient_set_supported() -> Result<(), CapsError> {
 ///
 /// This requires a mounted `procfs` and a kernel version >= 3.2. By default,
 /// it uses `/proc/` as the procfs mountpoint.
-pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHashSet, CapsError> {
+pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHashSet> {
     /// See `man 2 capabilities`.
     const LAST_CAP_FILEPATH: &str = "./sys/kernel/cap_last_cap";
     let last_cap_path = proc_mountpoint
@@ -47,11 +46,13 @@ pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHash
     let max_cap: u8 = {
         let mut buf = String::with_capacity(4);
         std::fs::File::open(last_cap_path.clone())
-            .and_then(|mut file| file.read_to_string(&mut buf))
-            .map_err(|e| format!("failed to read '{}': {}", last_cap_path.display(), e))?;
-        buf.trim_end()
-            .parse()
-            .map_err(|e| format!("failed to parse '{}': {}", last_cap_path.display(), e))?
+            .and_then(|mut file| file.read_to_string(&mut buf))?;
+        buf.trim_end().parse().map_err(|_| {
+            Error::new(
+                ErrorKind::InvalidData,
+                format!("failed to parse '{}'", last_cap_path.display()),
+            )
+        })?
     };
 
     let mut supported = super::all();

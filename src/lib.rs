@@ -26,7 +26,6 @@ fn manipulate_caps() -> ExResult<()> {
 ```
 !*/
 
-pub mod errors;
 pub mod runtime;
 pub mod securebits;
 
@@ -39,7 +38,7 @@ mod bounding;
 // All kernel-related constants.
 mod nr;
 
-use crate::errors::CapsError;
+use std::io::{Error, ErrorKind, Result};
 use std::iter::FromIterator;
 
 /// Linux capabilities sets.
@@ -193,9 +192,9 @@ impl std::fmt::Display for Capability {
 }
 
 impl std::str::FromStr for Capability {
-    type Err = CapsError;
+    type Err = Error;
 
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "CAP_CHOWN" => Ok(Capability::CAP_CHOWN),
             "CAP_DAC_OVERRIDE" => Ok(Capability::CAP_DAC_OVERRIDE),
@@ -238,7 +237,10 @@ impl std::str::FromStr for Capability {
             "CAP_PERFMON" => Ok(Capability::CAP_PERFMON),
             "CAP_BPF" => Ok(Capability::CAP_BPF),
             "CAP_CHECKPOINT_RESTORE" => Ok(Capability::CAP_CHECKPOINT_RESTORE),
-            _ => Err(format!("invalid capability: {}", s).into()),
+            _ => Err(Error::new(
+                ErrorKind::InvalidInput,
+                format!("invalid capability: {}", s),
+            )),
         }
     }
 }
@@ -265,13 +267,13 @@ pub type CapsHashSet = std::collections::HashSet<Capability>;
 /// Check if set `cset` for thread `tid` contains capability `cap`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot check Ambient or Bounding capabilities of other processes.
-pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool, CapsError> {
+pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::has_cap(cap),
         CapSet::Bounding if t == 0 => bounding::has_cap(cap),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::has_cap(t, cset, cap),
-        _ => Err("operation not supported".into()),
+        _ => Err(Error::new(ErrorKind::Other, "operation not supported")),
     }
 }
 
@@ -280,13 +282,13 @@ pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool, 
 /// Return current content of set `cset` for thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot read Ambient or Bounding capabilities of other processes.
-pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
+pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::read(),
         CapSet::Bounding if t == 0 => bounding::read(),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::read(t, cset),
-        _ => Err("operation not supported".into()),
+        _ => Err(Error::new(ErrorKind::Other, "operation not supported")),
     }
 }
 
@@ -296,12 +298,12 @@ pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be set in Bounding set.
-pub fn set(tid: Option<i32>, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError> {
+pub fn set(tid: Option<i32>, cset: CapSet, value: &CapsHashSet) -> Result<()> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::set(value),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
-        _ => Err("operation not supported".into()),
+        _ => Err(Error::new(ErrorKind::Other, "operation not supported")),
     }
 }
 
@@ -310,13 +312,13 @@ pub fn set(tid: Option<i32>, cset: CapSet, value: &CapsHashSet) -> Result<(), Ca
 /// All capabilities will be cleared from set `cset` for thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient or Bounding set of other processes.
-pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<(), CapsError> {
+pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<()> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::clear(),
         CapSet::Bounding if t == 0 => bounding::clear(),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::clear(t, cset),
-        _ => Err("operation not supported".into()),
+        _ => Err(Error::new(ErrorKind::Other, "operation not supported")),
     }
 }
 
@@ -326,12 +328,12 @@ pub fn clear(tid: Option<i32>, cset: CapSet) -> Result<(), CapsError> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be raised in Bounding set.
-pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
+pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::raise(cap),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::raise(t, cset, cap),
-        _ => Err("operation not supported".into()),
+        _ => Err(Error::new(ErrorKind::Other, "operation not supported")),
     }
 }
 
@@ -340,13 +342,13 @@ pub fn raise(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<(), Caps
 /// Capabilities `cap` will be dropped from set `cset` of thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient and Bounding sets of other processes.
-pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
+pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<()> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::drop(cap),
         CapSet::Bounding if t == 0 => bounding::drop(cap),
         CapSet::Effective | CapSet::Permitted | CapSet::Inheritable => base::drop(t, cset, cap),
-        _ => Err("operation not supported".into()),
+        _ => Err(Error::new(ErrorKind::Other, "operation not supported")),
     }
 }
 
@@ -437,7 +439,7 @@ mod tests {
         let p1_err = p1.unwrap_err();
         assert!(p1_err.to_string().contains("invalid"));
         assert!(format!("{}", p1_err).contains("CAP_FOO"));
-        let p2: Result<Capability, CapsError> = "CAP_BAR".parse();
+        let p2: Result<Capability> = "CAP_BAR".parse();
         assert!(p2.is_err());
     }
 

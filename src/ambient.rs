@@ -1,19 +1,20 @@
 //! Implementation of Ambient set.
 
-use crate::errors::CapsError;
+use std::io::{Error, Result};
+
 use crate::nr;
 use crate::runtime;
 use crate::{Capability, CapsHashSet};
 
-pub fn clear() -> Result<(), CapsError> {
+pub fn clear() -> Result<()> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };
     match ret {
         0 => Ok(()),
-        _ => Err(format!("PR_CAP_AMBIENT_CLEAR_ALL failure, errno {}", errno::errno()).into()),
+        _ => Err(Error::last_os_error()),
     }
 }
 
-pub fn drop(cap: Capability) -> Result<(), CapsError> {
+pub fn drop(cap: Capability) -> Result<()> {
     let ret = unsafe {
         libc::prctl(
             nr::PR_CAP_AMBIENT,
@@ -25,11 +26,11 @@ pub fn drop(cap: Capability) -> Result<(), CapsError> {
     };
     match ret {
         0 => Ok(()),
-        _ => Err(format!("PR_CAP_AMBIENT_LOWER failure, errno {}", errno::errno()).into()),
+        _ => Err(Error::last_os_error()),
     }
 }
 
-pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
+pub fn has_cap(cap: Capability) -> Result<bool> {
     let ret = unsafe {
         libc::prctl(
             nr::PR_CAP_AMBIENT,
@@ -42,11 +43,11 @@ pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
     match ret {
         0 => Ok(false),
         1 => Ok(true),
-        _ => Err(format!("PR_CAP_AMBIENT_IS_SET failure, errno {}", errno::errno()).into()),
+        _ => Err(Error::last_os_error()),
     }
 }
 
-pub fn raise(cap: Capability) -> Result<(), CapsError> {
+pub fn raise(cap: Capability) -> Result<()> {
     let ret = unsafe {
         libc::prctl(
             nr::PR_CAP_AMBIENT,
@@ -58,11 +59,11 @@ pub fn raise(cap: Capability) -> Result<(), CapsError> {
     };
     match ret {
         0 => Ok(()),
-        _ => Err(format!("PR_CAP_AMBIENT_RAISE failure, errno {}", errno::errno()).into()),
+        _ => Err(Error::last_os_error()),
     }
 }
 
-pub fn read() -> Result<CapsHashSet, CapsError> {
+pub fn read() -> Result<CapsHashSet> {
     let mut res = super::CapsHashSet::new();
     for c in runtime::thread_all_supported() {
         if has_cap(c)? {
@@ -72,7 +73,7 @@ pub fn read() -> Result<CapsHashSet, CapsError> {
     Ok(res)
 }
 
-pub fn set(value: &super::CapsHashSet) -> Result<(), CapsError> {
+pub fn set(value: &super::CapsHashSet) -> Result<()> {
     for c in runtime::thread_all_supported() {
         if value.contains(&c) {
             raise(c)?;
