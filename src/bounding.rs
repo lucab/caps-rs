@@ -17,7 +17,7 @@ pub fn drop(cap: Capability) -> Result<(), CapsError> {
     match ret {
         0 => Ok(()),
         _ => Err(CapsError::from(format!(
-            "PR_CAPBSET_READ failure, errno {}",
+            "PR_CAPBSET_DROP failure, errno {}",
             errno::errno()
         ))),
     }
