@@ -68,6 +68,10 @@ pub enum CapSet {
 #[allow(non_camel_case_types)]
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
 #[repr(u8)]
+#[cfg_attr(
+    feature = "serde_support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
 pub enum Capability {
     /// `CAP_CHOWN` (from POSIX)
     CAP_CHOWN = nr::CAP_CHOWN,
@@ -419,6 +423,7 @@ pub fn to_canonical(name: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
 
     #[test]
     fn test_all_roundtrip() {
@@ -433,7 +438,6 @@ mod tests {
 
     #[test]
     fn test_parse_invalid() {
-        use std::str::FromStr;
         let p1 = Capability::from_str("CAP_FOO");
         let p1_err = p1.unwrap_err();
         assert!(p1_err.to_string().contains("invalid"));
@@ -444,12 +448,20 @@ mod tests {
 
     #[test]
     fn test_to_canonical() {
-        use std::str::FromStr;
         let p1 = "foo";
         assert!(Capability::from_str(&to_canonical(p1)).is_err());
         let p2 = "sys_admin";
         assert!(Capability::from_str(&to_canonical(p2)).is_ok());
         let p3 = "CAP_SYS_CHROOT";
         assert!(Capability::from_str(&to_canonical(p3)).is_ok());
+    }
+
+    #[test]
+    #[cfg(feature = "serde_support")]
+    fn test_serde() {
+        let p1 = Capability::from_str("CAP_CHOWN").unwrap();
+        let ser = serde_json::to_value(&p1).unwrap();
+        let deser: Capability = serde_json::from_value(ser).unwrap();
+        assert_eq!(deser, p1);
     }
 }
