@@ -64,8 +64,9 @@ pub enum CapSet {
 ///
 /// All capabilities supported by Linux, including standard
 /// POSIX and custom ones. See `capabilities(7)`.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[allow(clippy::manual_non_exhaustive)]
 #[allow(non_camel_case_types)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum Capability {
     /// `CAP_CHOWN` (from POSIX)
