@@ -2,6 +2,7 @@ use crate::errors::CapsError;
 use crate::nr;
 use crate::runtime;
 use crate::Capability;
+use std::io::Error;
 
 pub fn clear() -> Result<(), CapsError> {
     for c in super::all() {
@@ -17,8 +18,8 @@ pub fn drop(cap: Capability) -> Result<(), CapsError> {
     match ret {
         0 => Ok(()),
         _ => Err(CapsError::from(format!(
-            "PR_CAPBSET_DROP failure, errno {}",
-            errno::errno()
+            "PR_CAPBSET_DROP failure: {}",
+            Error::last_os_error()
         ))),
     }
 }
@@ -29,8 +30,8 @@ pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
         0 => Ok(false),
         1 => Ok(true),
         _ => Err(CapsError::from(format!(
-            "PR_CAPBSET_READ failure, errno {}",
-            errno::errno()
+            "PR_CAPBSET_READ failure: {}",
+            Error::last_os_error()
         ))),
     }
 }

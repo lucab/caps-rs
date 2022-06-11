@@ -1,6 +1,7 @@
 use crate::errors::CapsError;
 use crate::nr;
 use crate::{CapSet, Capability, CapsHashSet};
+use std::io::Error;
 
 #[allow(clippy::unreadable_literal)]
 const CAPS_V3: u32 = 0x20080522;
@@ -9,7 +10,7 @@ fn capget(hdr: &mut CapUserHeader, data: &mut CapUserData) -> Result<(), CapsErr
     let r = unsafe { libc::syscall(nr::CAPGET, hdr, data) };
     match r {
         0 => Ok(()),
-        _ => Err(format!("capget failure, errno {}", errno::errno()).into()),
+        _ => Err(format!("capget failure: {}", Error::last_os_error()).into()),
     }
 }
 
@@ -17,7 +18,7 @@ fn capset(hdr: &mut CapUserHeader, data: &CapUserData) -> Result<(), CapsError> 
     let r = unsafe { libc::syscall(nr::CAPSET, hdr, data) };
     match r {
         0 => Ok(()),
-        _ => Err(format!("capset failure, errno {}", errno::errno()).into()),
+        _ => Err(format!("capset failure: {}", Error::last_os_error()).into()),
     }
 }
 
