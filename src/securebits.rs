@@ -6,6 +6,7 @@
 
 use crate::errors::CapsError;
 use crate::nr;
+use std::io::Error;
 
 /// Return whether the current thread's "keep capabilities" flag is set.
 pub fn has_keepcaps() -> Result<bool, CapsError> {
@@ -14,8 +15,8 @@ pub fn has_keepcaps() -> Result<bool, CapsError> {
         0 => Ok(false),
         1 => Ok(true),
         _ => Err(CapsError::from(format!(
-            "PR_GET_KEEPCAPS failure, errno {}",
-            errno::errno()
+            "PR_GET_KEEPCAPS failure: {}",
+            Error::last_os_error()
         ))),
     }
 }
@@ -27,8 +28,8 @@ pub fn set_keepcaps(keep_caps: bool) -> Result<(), CapsError> {
     match ret {
         0 => Ok(()),
         _ => Err(CapsError::from(format!(
-            "PR_SET_KEEPCAPS failure, errno {}",
-            errno::errno()
+            "PR_SET_KEEPCAPS failure: {}",
+            Error::last_os_error()
         ))),
     }
 }

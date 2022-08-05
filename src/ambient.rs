@@ -4,12 +4,17 @@ use crate::errors::CapsError;
 use crate::nr;
 use crate::runtime;
 use crate::{Capability, CapsHashSet};
+use std::io::Error;
 
 pub fn clear() -> Result<(), CapsError> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };
     match ret {
         0 => Ok(()),
-        _ => Err(format!("PR_CAP_AMBIENT_CLEAR_ALL failure, errno {}", errno::errno()).into()),
+        _ => Err(format!(
+            "PR_CAP_AMBIENT_CLEAR_ALL failure: {}",
+            Error::last_os_error()
+        )
+        .into()),
     }
 }
 
@@ -25,7 +30,7 @@ pub fn drop(cap: Capability) -> Result<(), CapsError> {
     };
     match ret {
         0 => Ok(()),
-        _ => Err(format!("PR_CAP_AMBIENT_LOWER failure, errno {}", errno::errno()).into()),
+        _ => Err(format!("PR_CAP_AMBIENT_LOWER failure: {}", Error::last_os_error()).into()),
     }
 }
 
@@ -42,7 +47,7 @@ pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
     match ret {
         0 => Ok(false),
         1 => Ok(true),
-        _ => Err(format!("PR_CAP_AMBIENT_IS_SET failure, errno {}", errno::errno()).into()),
+        _ => Err(format!("PR_CAP_AMBIENT_IS_SET failure: {}", Error::last_os_error()).into()),
     }
 }
 
@@ -58,7 +63,7 @@ pub fn raise(cap: Capability) -> Result<(), CapsError> {
     };
     match ret {
         0 => Ok(()),
-        _ => Err(format!("PR_CAP_AMBIENT_RAISE failure, errno {}", errno::errno()).into()),
+        _ => Err(format!("PR_CAP_AMBIENT_RAISE failure: {}", Error::last_os_error()).into()),
     }
 }
 
