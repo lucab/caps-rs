@@ -1,6 +1,6 @@
 [package]
 name = "caps"
-version = "0.5.3"
+version = "0.5.4"
 edition = "2018"
 authors = ["Luca Bruno <lucab@lucabruno.net>"]
 license = "MIT/Apache-2.0"
@@ -25,8 +25,8 @@ serde_support = ["serde"]
 serde_json = "^1.0"
 
 [package.metadata.release]
-disable-publish = true
-disable-push = true
+publish = false
+push = false
 post-release-commit-message = "cargo: development version bump"
 pre-release-commit-message = "cargo: caps release {{version}}"
 sign-commit = true
