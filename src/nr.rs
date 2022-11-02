@@ -120,3 +120,8 @@ pub const CAPSET: i64 = 22;
 pub const CAPGET: i64 = 90;
 #[cfg(target_arch = "riscv64")]
 pub const CAPSET: i64 = 91;
+
+#[cfg(target_arch = "loongarch64")]
+pub const CAPGET: i64 = 90;
+#[cfg(target_arch = "loongarch64")]
+pub const CAPSET: i64 = 91;
