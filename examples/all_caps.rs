@@ -13,7 +13,7 @@ mechanisms are available, they produce the exact same result.
 type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
 
 fn main() -> ExResult<()> {
-    let library_set = caps::all();
+    let library_set = caps::Capabilities::all();
     let runtime_set = caps::runtime::procfs_all_supported(None).unwrap_or_else(|e| {
         eprintln!("procfs introspection failed: {}", e);
         caps::runtime::thread_all_supported()

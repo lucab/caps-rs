@@ -9,7 +9,8 @@
 type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
 
 fn main() -> ExResult<()> {
-    use caps::{CapSet, Capability};
+    use caps::CapSet;
+    use caps::capability::Capability;
 
     // Any process can lower its own priority.
     println!("-> Current process priority is {}.", proc_nice());
@@ -22,7 +23,7 @@ fn main() -> ExResult<()> {
     let r = caps::drop(None, CapSet::Effective, Capability::CAP_SYS_NICE);
     assert!(r.is_ok());
     println!("Dropped CAP_SYS_NICE.");
-    let has_sys_nice = caps::has_cap(None, CapSet::Effective, Capability::CAP_SYS_NICE);
+    let has_sys_nice = caps::has_cap(None, CapSet::Effective, &Capability::CAP_SYS_NICE);
     assert!(has_sys_nice.is_ok());
     assert_eq!(has_sys_nice.unwrap_or(true), false);
     let r = renice(-20);
@@ -30,7 +31,7 @@ fn main() -> ExResult<()> {
     println!("Unprivileged, unable to raise priority to -20.");
 
     // If `CAP_SYS_NICE` is still in permitted set, it can be raised again.
-    let perm_sys_nice = caps::has_cap(None, CapSet::Permitted, Capability::CAP_SYS_NICE);
+    let perm_sys_nice = caps::has_cap(None, CapSet::Permitted, &Capability::CAP_SYS_NICE);
     assert!(perm_sys_nice.is_ok());
     if !perm_sys_nice? {
         return Err(

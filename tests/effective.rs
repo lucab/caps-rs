@@ -1,6 +1,6 @@
 #[test]
 fn test_effective_has_cap() {
-    caps::has_cap(None, caps::CapSet::Effective, caps::Capability::CAP_CHOWN).unwrap();
+    caps::has_cap(None, caps::CapSet::Effective, &caps::capability::Capability::CAP_CHOWN).unwrap();
 }
 
 #[test]
@@ -17,16 +17,16 @@ fn test_effective_clear() {
 
 #[test]
 fn test_effective_drop() {
-    caps::drop(None, caps::CapSet::Effective, caps::Capability::CAP_CHOWN).unwrap();
-    let no_eff = caps::has_cap(None, caps::CapSet::Effective, caps::Capability::CAP_CHOWN).unwrap();
+    caps::drop(None, caps::CapSet::Effective, caps::capability::Capability::CAP_CHOWN).unwrap();
+    let no_eff = caps::has_cap(None, caps::CapSet::Effective, &caps::capability::Capability::CAP_CHOWN).unwrap();
     assert_eq!(no_eff, false);
 }
 
 #[test]
 fn test_effective_raise() {
-    let perm = caps::has_cap(None, caps::CapSet::Permitted, caps::Capability::CAP_CHOWN).unwrap();
-    caps::drop(None, caps::CapSet::Effective, caps::Capability::CAP_CHOWN).unwrap();
-    let r = caps::raise(None, caps::CapSet::Effective, caps::Capability::CAP_CHOWN);
+    let perm = caps::has_cap(None, caps::CapSet::Permitted, &caps::capability::Capability::CAP_CHOWN).unwrap();
+    caps::drop(None, caps::CapSet::Effective, caps::capability::Capability::CAP_CHOWN).unwrap();
+    let r = caps::raise(None, caps::CapSet::Effective, caps::capability::Capability::CAP_CHOWN);
     if perm {
         r.unwrap();
     } else {
@@ -36,11 +36,11 @@ fn test_effective_raise() {
 
 #[test]
 fn test_effective_set() {
-    let mut v = caps::CapsHashSet::new();
+    let mut v = caps::Capabilities::new();
     caps::set(None, caps::CapSet::Effective, &v).unwrap();
     let empty = caps::read(None, caps::CapSet::Effective).unwrap();
     assert_eq!(empty.len(), 0);
-    v.insert(caps::Capability::CAP_CHOWN);
-    caps::drop(None, caps::CapSet::Ambient, caps::Capability::CAP_CHOWN).unwrap();
+    v.insert(&caps::capability::Capability::CAP_CHOWN);
+    caps::drop(None, caps::CapSet::Ambient, caps::capability::Capability::CAP_CHOWN).unwrap();
     assert!(caps::set(None, caps::CapSet::Ambient, &v).is_err());
 }

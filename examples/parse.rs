@@ -1,4 +1,4 @@
-use caps::Capability;
+use caps::capability::Capability;
 use std::str::FromStr;
 
 fn main() {

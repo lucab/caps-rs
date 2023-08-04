@@ -1,0 +1,149 @@
+use pcre2::bytes::RegexBuilder;
+use reqwest;
+use std::error::Error;
+use std::fs::File;
+use std::io::Write;
+use std::process::Command;
+use std::string::String;
+
+
+fn write_const_id (f: &mut File) -> Result<(), Box<dyn Error>> {
+    let resp = reqwest::blocking::get("https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/plain/include/uapi/linux/capability.h").expect("request failed");
+    let haystack = resp.text()?;
+    let mut re = RegexBuilder::new();
+    re.multi_line(true);
+    let re = re.build(r"^#define\s+(CAP_[A-Z_]+)\s+(\d+)")?;
+    let mut consts = Vec::new();
+    let mut capenum = Vec::new();
+    capenum.write(r#"/// Linux capabilities.
+///
+/// All capabilities supported by Linux, including standard
+/// POSIX and custom ones. See `capabilities(7)`.
+#[allow(clippy::manual_non_exhaustive)]
+#[allow(non_camel_case_types)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[repr(u8)]
+#[cfg_attr(
+    feature = "serde_support",
+    derive(serde::Serialize, serde::Deserialize)
+)]
+pub enum Capability {
+"#.as_bytes())?;
+    let mut from_str = Vec::new();
+    from_str.write("
+impl std::str::FromStr for Capability {
+    type Err = crate::errors::CapsError;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {\n".as_bytes())?;
+    let mut from_index = Vec::new();
+    from_index.write("impl From<u8> for Capability {
+    fn from(value: u8) -> Self {
+        match value {
+".as_bytes())?;
+    let mut display = Vec::new();
+    display.write(r#"impl std::fmt::Display for Capability {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,
+            "{}",
+            match self {
+"#.as_bytes())?;
+    for cap in re.captures_iter(&haystack.as_bytes()) {
+        let cap = cap?;
+        let name = std::str::from_utf8(cap.get(1).unwrap().as_bytes())?;
+        let id = std::str::from_utf8(cap.get(2).unwrap().as_bytes())?;
+        consts.write(format!("pub const S_{0} : &str = \"{0}\";\n", name).as_bytes())?;
+        capenum.write(format!("    {} = {},\n", name, id).as_bytes())?;
+        from_str.write(format!("            S_{0} => Ok(Capability::{0}),\n", name).as_bytes())?;
+        from_index.write(format!("                {} => Capability::{},\n", id, name).as_bytes())?;
+        display.write(format!("            Capability::{0} => S_{0},\n", name).as_bytes())?;
+    }
+    capenum.write("    #[doc(hidden)]
+    __Nonexhaustive,\n}\n".as_bytes())?;
+    from_str.write(r#"            _ => Err(format!("invalid capability: {}", s).into()),
+        }
+    }
+}
+"#.as_bytes())?;
+    from_index.write(r#"                 _ => unreachable!("invalid capability"),
+        }
+    }
+}
+"#.as_bytes())?;
+    display.write(r#"            Capability::__Nonexhaustive => unreachable!("invalid capability"),
+        })
+    }
+}
+"#.as_bytes())?;
+    f.write(&consts)?;
+    f.write(&capenum)?;
+    f.write(&from_str)?;
+    f.write(&from_index)?;
+    f.write(&display)?;
+
+    Ok(())
+}
+
+fn write_doc(f: &mut File) -> Result<(), Box<dyn Error>> {
+    let docresp = reqwest::blocking::get("https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/plain/man7/capabilities.7").expect("request failed");
+    let haystack = docresp.text()?;
+    
+    //write to new temporary file
+    let temp = std::path::Path::new("temp.7");
+    let mut tempf = File::create(temp)?;
+    tempf.write_all(haystack.as_bytes())?;
+    tempf.flush()?;
+    //now execute man command to convert to ascii
+    let res = String::from_utf8(Command::new("/usr/bin/man").args(&["--nh", "--nj", "-al", "-P", "/usr/bin/cat", "temp.7"]).output()?.stdout)?;
+    //delete temp file
+    std::fs::remove_file(temp)?;
+    //now parse the output
+    let mut re = RegexBuilder::new();
+    re.multi_line(true);
+    let re = re.build(r"^       (CAP_[A-Z_]+)\K((?!^       CAP_[A-Z_]+|^   Past).|\R)+")?;
+    let spacere = regex::Regex::new(r" +")?;
+    f.write(r#"pub fn get_capability_description(cap : Capability) -> &'static str {
+    match cap {
+"#
+        .as_bytes())?;
+    let mut caplist = Vec::new();
+    for cap in re.captures_iter(&res.as_bytes()) {
+        
+        let cap = cap?;
+        let name = std::str::from_utf8(cap.get(1).unwrap().as_bytes())?;
+        if caplist.contains(&name) {
+            continue;
+        }
+        caplist.push(name);
+        let mut desc = std::string::String::from_utf8(cap.get(0).unwrap().as_bytes().to_vec())?;
+        desc = spacere.replace_all(&desc, " ").to_string();
+        let desc = desc.trim().to_string();
+        f.write(format!("        Capability::{} => r#\"{}\"#,\n", name, desc).as_bytes())?;
+    }
+    f.write(r#"        Capability::__Nonexhaustive => unreachable!("invalid capability")
+    }
+}"#.as_bytes())?;
+    
+
+    Ok(())
+}
+
+fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    let caps_path = std::path::Path::new("src").join("capability.rs");
+    let mut capsf = File::create(caps_path).unwrap();
+    capsf.write(b"// This file is generated by build.rs\n").unwrap();
+    capsf.write(b"// Do not edit this file directly\n").unwrap();
+    capsf.write(b"// Instead edit build.rs and run cargo build\n").unwrap();
+
+
+    capsf.write(b"/* Capabilities Values from capability.h kernel source code */\n").unwrap();
+    write_const_id(&mut capsf).unwrap();
+
+    capsf.write(b"/* Capabilities Documentation from man-pages */\n").unwrap();
+    write_doc(&mut capsf).unwrap();
+
+    capsf.flush().unwrap();
+
+
+}

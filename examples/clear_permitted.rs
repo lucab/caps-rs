@@ -9,14 +9,15 @@
 type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
 
 fn main() -> ExResult<()> {
-    use caps::{CapSet, Capability};
+    use caps::CapSet;
+    use caps::capability::Capability;
 
     // Check if `CAP_CHOWN` was originally available.
     let cur = caps::read(None, CapSet::Permitted)?;
     println!("-> Current permitted caps: {:?}.", cur);
     let cur = caps::read(None, CapSet::Effective)?;
     println!("-> Current effective caps: {:?}.", cur);
-    let perm_chown = caps::has_cap(None, CapSet::Permitted, Capability::CAP_CHOWN);
+    let perm_chown = caps::has_cap(None, CapSet::Permitted, &Capability::CAP_CHOWN);
     assert!(perm_chown.is_ok());
     if !perm_chown? {
         return Err(

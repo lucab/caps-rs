@@ -18,7 +18,7 @@ println!("Supported capabilities: {}", all.len());
 ```
 !*/
 
-use super::{ambient, CapSet, Capability, CapsHashSet};
+use super::{ambient, CapSet, Capability, Capabilities};
 use crate::errors::CapsError;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -29,7 +29,7 @@ use std::path::{Path, PathBuf};
 /// where the ambient set is supported, this will return `Ok`.
 /// On a legacy kernel, an `Err` is returned instead.
 pub fn ambient_set_supported() -> Result<(), CapsError> {
-    ambient::has_cap(Capability::CAP_CHOWN)?;
+    ambient::has_cap(&Capability::CAP_CHOWN)?;
     Ok(())
 }
 
@@ -37,7 +37,7 @@ pub fn ambient_set_supported() -> Result<(), CapsError> {
 ///
 /// This requires a mounted `procfs` and a kernel version >= 3.2. By default,
 /// it uses `/proc/` as the procfs mountpoint.
-pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHashSet, CapsError> {
+pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<Capabilities, CapsError> {
     /// See `man 2 capabilities`.
     const LAST_CAP_FILEPATH: &str = "./sys/kernel/cap_last_cap";
     let last_cap_path = proc_mountpoint
@@ -54,8 +54,8 @@ pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHash
             .map_err(|e| format!("failed to parse '{}': {}", last_cap_path.display(), e))?
     };
 
-    let mut supported = super::all();
-    for c in super::all() {
+    let mut supported = Capabilities::all();
+    for c in Capabilities::all() {
         if c.index() > max_cap {
             supported.remove(&c);
         }
@@ -69,10 +69,10 @@ pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHash
 /// kernel version >= 2.6.25.
 /// It internally uses `prctl(2)` and `PR_CAPBSET_READ`; if those are
 /// unavailable, this will result in an empty set.
-pub fn thread_all_supported() -> CapsHashSet {
-    let mut supported = super::all();
-    for c in super::all() {
-        if super::has_cap(None, CapSet::Bounding, c).is_err() {
+pub fn thread_all_supported() -> Capabilities {
+    let mut supported = Capabilities::all();
+    for c in Capabilities::all() {
+        if super::has_cap(None, CapSet::Bounding, &c).is_err() {
             supported.remove(&c);
         }
     }
