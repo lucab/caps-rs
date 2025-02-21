@@ -18,15 +18,18 @@ macro_rules! capability_list {
         pub enum Capability {
             $(
                 $(#[doc = $doc])?
-                $capability = crate::nr::$capability
-            ),*
+                $capability = crate::nr::$capability,
+            )*
+            #[doc(hidden)]
+            __Nonexhaustive,
         }
         impl ::std::fmt::Display for Capability {
             fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
                 let name = match *self {
                     $(
-                        Self::$capability => stringify!($capability)
-                    ),*
+                        Self::$capability => stringify!($capability),
+                    )*
+                    Self::__Nonexhaustive => unreachable!("invalid capability")
                 };
                 write!(f, "{}", name)
             }
