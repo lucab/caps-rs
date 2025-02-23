@@ -56,10 +56,10 @@ pub fn procfs_all_supported_caps<T: CapsList>(
             .map_err(|e| format!("failed to parse '{}': {}", last_cap_path.display(), e))?
     };
 
-    let mut supported: T = super::all_caps();
-    for c in supported.clone().iter_caps() {
-        if c.index() > max_cap {
-            supported.remove_cap(&c);
+    let mut supported = T::empty();
+    for c in crate::caps::all_iter() {
+        if c.index() <= max_cap {
+            supported.insert_cap(c);
         }
     }
     Ok(supported)
@@ -81,10 +81,10 @@ pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHash
 /// It internally uses `prctl(2)` and `PR_CAPBSET_READ`; if those are
 /// unavailable, this will result in an empty set.
 pub fn thread_all_supported_caps<T: CapsList>() -> T {
-    let mut supported: T = super::all_caps();
-    for c in supported.clone().iter_caps() {
-        if super::has_cap(None, CapSet::Bounding, c).is_err() {
-            supported.remove_cap(&c);
+    let mut supported = T::empty();
+    for c in crate::caps::all_iter() {
+        if super::has_cap(None, CapSet::Bounding, c).is_ok() {
+            supported.insert_cap(c);
         }
     }
     supported
