@@ -1,6 +1,6 @@
 use std::{collections::HashSet, convert::TryInto, iter::FromIterator, marker::PhantomData};
 
-/// An `HashSet` specialized on `Capability`.
+/// List of [`Capability`] stored as [`HashSet`].
 pub type CapsHashSet = std::collections::HashSet<Capability>;
 
 macro_rules! capability_list {
@@ -179,6 +179,8 @@ impl From<CapsHashSet> for CapsBitFlags {
 }
 
 /// A collection capable of storing a set of [`Capability`].
+///
+/// Both [`CapsBitFlags`] and [`CapsHashSet`] implements this trait, using different inner containers.
 pub trait CapsList: FromIterator<Capability> + Clone {
     type Iter<'a>: Iterator<Item = Capability>
     where
