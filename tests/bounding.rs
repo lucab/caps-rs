@@ -10,7 +10,7 @@ fn test_bounding_has_cap() {
 
 #[test]
 fn test_bounding_read() {
-    caps::read(None, caps::CapSet::Bounding).unwrap();
+    caps::read_caps::<caps::CapsBitFlags>(None, caps::CapSet::Bounding).unwrap();
 }
 
 #[test]
@@ -18,7 +18,7 @@ fn test_bounding_clear() {
     let ret = caps::clear(None, caps::CapSet::Bounding);
     if caps::has_cap(None, caps::CapSet::Effective, caps::Capability::CAP_SETPCAP).unwrap() {
         ret.unwrap();
-        let empty = caps::read(None, caps::CapSet::Bounding).unwrap();
+        let empty = caps::read_caps::<caps::CapsHashSet>(None, caps::CapSet::Bounding).unwrap();
         assert_eq!(empty.len(), 0);
     } else {
         assert!(ret.is_err());
@@ -34,7 +34,7 @@ fn test_bounding_drop() {
     );
     if caps::has_cap(None, caps::CapSet::Effective, caps::Capability::CAP_SETPCAP).unwrap() {
         ret.unwrap();
-        let set = caps::read(None, caps::CapSet::Bounding).unwrap();
+        let set = caps::read_caps::<caps::CapsHashSet>(None, caps::CapSet::Bounding).unwrap();
         assert!(!set.contains(&caps::Capability::CAP_SYS_CHROOT));
     } else {
         assert!(ret.is_err());
@@ -54,5 +54,5 @@ fn test_bounding_raise() {
 #[test]
 fn test_bounding_set() {
     let v = caps::CapsHashSet::new();
-    assert!(caps::set(None, caps::CapSet::Bounding, &v).is_err());
+    assert!(caps::set_caps(None, caps::CapSet::Bounding, &v).is_err());
 }

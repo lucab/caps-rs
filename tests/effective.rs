@@ -5,13 +5,13 @@ fn test_effective_has_cap() {
 
 #[test]
 fn test_effective_read() {
-    caps::read(None, caps::CapSet::Effective).unwrap();
+    caps::read_caps::<caps::CapsBitFlags>(None, caps::CapSet::Effective).unwrap();
 }
 
 #[test]
 fn test_effective_clear() {
     caps::clear(None, caps::CapSet::Effective).unwrap();
-    let empty = caps::read(None, caps::CapSet::Effective).unwrap();
+    let empty = caps::read_caps::<caps::CapsHashSet>(None, caps::CapSet::Effective).unwrap();
     assert_eq!(empty.len(), 0);
 }
 
@@ -37,10 +37,10 @@ fn test_effective_raise() {
 #[test]
 fn test_effective_set() {
     let mut v = caps::CapsHashSet::new();
-    caps::set(None, caps::CapSet::Effective, &v).unwrap();
-    let empty = caps::read(None, caps::CapSet::Effective).unwrap();
+    caps::set_caps(None, caps::CapSet::Effective, &v).unwrap();
+    let empty = caps::read_caps::<caps::CapsHashSet>(None, caps::CapSet::Effective).unwrap();
     assert_eq!(empty.len(), 0);
     v.insert(caps::Capability::CAP_CHOWN);
     caps::drop(None, caps::CapSet::Ambient, caps::Capability::CAP_CHOWN).unwrap();
-    assert!(caps::set(None, caps::CapSet::Ambient, &v).is_err());
+    assert!(caps::set_caps(None, caps::CapSet::Ambient, &v).is_err());
 }

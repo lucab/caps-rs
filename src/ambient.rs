@@ -3,8 +3,8 @@
 use crate::errors::CapsError;
 use crate::nr;
 use crate::runtime;
-use crate::{Capability, CapsHashSet};
-use std::io::Error;
+use crate::{Capability, CapsBitFlags, CapsList};
+use std::{io::Error, iter::FromIterator};
 
 pub fn clear() -> Result<(), CapsError> {
     let ret = unsafe { libc::prctl(nr::PR_CAP_AMBIENT, nr::PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) };
@@ -67,19 +67,20 @@ pub fn raise(cap: Capability) -> Result<(), CapsError> {
     }
 }
 
-pub fn read() -> Result<CapsHashSet, CapsError> {
-    let mut res = super::CapsHashSet::new();
-    for c in runtime::thread_all_supported() {
-        if has_cap(c)? {
-            res.insert(c);
-        }
-    }
-    Ok(res)
+pub fn read<T: FromIterator<Capability>>() -> Result<T, CapsError> {
+    runtime::thread_all_supported_caps::<CapsBitFlags>()
+        .iter_caps()
+        .filter_map(|c| match has_cap(c) {
+            Ok(false) => None,
+            Err(e) => Some(Err(e)),
+            Ok(true) => Some(Ok(c)),
+        })
+        .collect()
 }
 
-pub fn set(value: &super::CapsHashSet) -> Result<(), CapsError> {
-    for c in runtime::thread_all_supported() {
-        if value.contains(&c) {
+pub fn set<T: super::CapsList>(value: &T) -> Result<(), CapsError> {
+    for c in runtime::thread_all_supported_caps::<CapsBitFlags>().iter_caps() {
+        if value.contains_cap(&c) {
             raise(c)?;
         } else {
             drop(c)?;

@@ -1,11 +1,11 @@
 use crate::errors::CapsError;
 use crate::nr;
 use crate::runtime;
-use crate::Capability;
-use std::io::Error;
+use crate::{caps::all_iter, Capability, CapsList};
+use std::{io::Error, iter::FromIterator};
 
 pub fn clear() -> Result<(), CapsError> {
-    for c in super::all() {
+    for c in all_iter() {
         if has_cap(c)? {
             drop(c)?;
         }
@@ -36,12 +36,13 @@ pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
     }
 }
 
-pub fn read() -> Result<super::CapsHashSet, CapsError> {
-    let mut res = super::CapsHashSet::new();
-    for c in runtime::thread_all_supported() {
-        if has_cap(c)? {
-            res.insert(c);
-        }
-    }
-    Ok(res)
+pub fn read<T: FromIterator<Capability>>() -> Result<T, CapsError> {
+    runtime::thread_all_supported_caps::<crate::CapsBitFlags>()
+        .iter_caps()
+        .filter_map(|c| match has_cap(c) {
+            Ok(false) => None,
+            Err(e) => Some(Err(e)),
+            Ok(true) => Some(Ok(c)),
+        })
+        .collect()
 }

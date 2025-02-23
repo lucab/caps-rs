@@ -18,7 +18,7 @@ println!("Supported capabilities: {}", all.len());
 ```
 !*/
 
-use super::{ambient, CapSet, Capability, CapsHashSet};
+use super::{ambient, CapSet, Capability, CapsHashSet, CapsList};
 use crate::errors::CapsError;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -37,7 +37,9 @@ pub fn ambient_set_supported() -> Result<(), CapsError> {
 ///
 /// This requires a mounted `procfs` and a kernel version >= 3.2. By default,
 /// it uses `/proc/` as the procfs mountpoint.
-pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHashSet, CapsError> {
+pub fn procfs_all_supported_caps<T: CapsList>(
+    proc_mountpoint: Option<PathBuf>,
+) -> Result<T, CapsError> {
     /// See `man 2 capabilities`.
     const LAST_CAP_FILEPATH: &str = "./sys/kernel/cap_last_cap";
     let last_cap_path = proc_mountpoint
@@ -54,13 +56,22 @@ pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHash
             .map_err(|e| format!("failed to parse '{}': {}", last_cap_path.display(), e))?
     };
 
-    let mut supported = super::all();
-    for c in super::all() {
+    let mut supported: T = super::all_caps();
+    for c in supported.clone().iter_caps() {
         if c.index() > max_cap {
-            supported.remove(&c);
+            supported.remove_cap(&c);
         }
     }
     Ok(supported)
+}
+
+/// Return the set of all capabilities supported by the running kernel.
+///
+/// This requires a mounted `procfs` and a kernel version >= 3.2. By default,
+/// it uses `/proc/` as the procfs mountpoint.
+#[deprecated(note = "please use `procfs_all_supported_caps` instead")]
+pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHashSet, CapsError> {
+    procfs_all_supported_caps(proc_mountpoint)
 }
 
 /// Return the set of all capabilities supported on the current thread.
@@ -69,12 +80,23 @@ pub fn procfs_all_supported(proc_mountpoint: Option<PathBuf>) -> Result<CapsHash
 /// kernel version >= 2.6.25.
 /// It internally uses `prctl(2)` and `PR_CAPBSET_READ`; if those are
 /// unavailable, this will result in an empty set.
-pub fn thread_all_supported() -> CapsHashSet {
-    let mut supported = super::all();
-    for c in super::all() {
+pub fn thread_all_supported_caps<T: CapsList>() -> T {
+    let mut supported: T = super::all_caps();
+    for c in supported.clone().iter_caps() {
         if super::has_cap(None, CapSet::Bounding, c).is_err() {
-            supported.remove(&c);
+            supported.remove_cap(&c);
         }
     }
     supported
+}
+
+/// Return the set of all capabilities supported on the current thread.
+///
+/// This does not require a mounted `procfs`, and it works with any
+/// kernel version >= 2.6.25.
+/// It internally uses `prctl(2)` and `PR_CAPBSET_READ`; if those are
+/// unavailable, this will result in an empty set.
+#[deprecated(note = "please use `thread_all_supported_caps` instead")]
+pub fn thread_all_supported() -> CapsHashSet {
+    thread_all_supported_caps()
 }

@@ -9,12 +9,12 @@
 type ExResult<T> = Result<T, Box<dyn std::error::Error + 'static>>;
 
 fn main() -> ExResult<()> {
-    use caps::{CapSet, Capability};
+    use caps::{CapSet, Capability, CapsBitFlags};
 
     // Check if `CAP_CHOWN` was originally available.
-    let cur = caps::read(None, CapSet::Permitted)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Permitted)?;
     println!("-> Current permitted caps: {:?}.", cur);
-    let cur = caps::read(None, CapSet::Effective)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Effective)?;
     println!("-> Current effective caps: {:?}.", cur);
     let perm_chown = caps::has_cap(None, CapSet::Permitted, Capability::CAP_CHOWN);
     assert!(perm_chown.is_ok());
@@ -28,30 +28,30 @@ fn main() -> ExResult<()> {
     let r = caps::clear(None, CapSet::Effective);
     assert!(r.is_ok());
     println!("Cleared effective caps.");
-    let cur = caps::read(None, CapSet::Effective)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Effective)?;
     println!("-> Current effective caps: {:?}.", cur);
 
     // Since `CAP_CHOWN` is still in permitted, it can be raised again.
     let r = caps::raise(None, CapSet::Effective, Capability::CAP_CHOWN);
     assert!(r.is_ok());
     println!("Raised CAP_CHOWN in effective set.");
-    let cur = caps::read(None, CapSet::Effective)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Effective)?;
     println!("-> Current effective caps: {:?}.", cur);
 
     // Clearing Permitted also impacts effective.
     let r = caps::clear(None, CapSet::Permitted);
     assert!(r.is_ok());
     println!("Cleared permitted caps.");
-    let cur = caps::read(None, CapSet::Permitted)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Permitted)?;
     println!("-> Current permitted caps: {:?}.", cur);
-    let cur = caps::read(None, CapSet::Effective)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Effective)?;
     println!("-> Current effective caps: {:?}.", cur);
 
     // Trying to raise `CAP_CHOWN` now fails.
     let r = caps::raise(None, CapSet::Effective, Capability::CAP_CHOWN);
     assert!(r.is_err());
     println!("Tried to raise CAP_CHOWN but failed.");
-    let cur = caps::read(None, CapSet::Effective)?;
+    let cur: CapsBitFlags = caps::read_caps(None, CapSet::Effective)?;
     println!("-> Current effective caps: {:?}.", cur);
 
     Ok(())

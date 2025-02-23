@@ -1,7 +1,7 @@
 use crate::errors::CapsError;
 use crate::nr;
-use crate::{CapSet, Capability, CapsHashSet};
-use std::io::Error;
+use crate::{CapSet, Capability, CapsBitFlags, CapsList};
+use std::{io::Error, iter::FromIterator};
 
 #[allow(clippy::unreadable_literal)]
 const CAPS_V3: u32 = 0x20080522;
@@ -68,7 +68,7 @@ pub fn clear(tid: i32, cset: CapSet) -> Result<(), CapsError> {
     capset(&mut hdr, &data)
 }
 
-pub fn read(tid: i32, cset: CapSet) -> Result<CapsHashSet, CapsError> {
+pub fn read<T: FromIterator<Capability>>(tid: i32, cset: CapSet) -> Result<T, CapsError> {
     let mut hdr = CapUserHeader {
         version: CAPS_V3,
         pid: tid,
@@ -83,16 +83,12 @@ pub fn read(tid: i32, cset: CapSet) -> Result<CapsHashSet, CapsError> {
         CapSet::Permitted => (u64::from(data.permitted_s1) << 32) + u64::from(data.permitted_s0),
         CapSet::Bounding | CapSet::Ambient => return Err("not a base set".into()),
     };
-    let mut res = CapsHashSet::new();
-    for c in super::all() {
-        if (caps & c.bitmask()) != 0 {
-            res.insert(c);
-        }
-    }
-    Ok(res)
+    Ok(crate::caps::all_iter()
+        .filter(|c| ((caps & c.bitmask()) != 0))
+        .collect())
 }
 
-pub fn set(tid: i32, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError> {
+pub fn set<T: super::CapsList>(tid: i32, cset: CapSet, value: &T) -> Result<(), CapsError> {
     let mut hdr = CapUserHeader {
         version: CAPS_V3,
         pid: tid,
@@ -108,7 +104,7 @@ pub fn set(tid: i32, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError>
         };
         *s1 = 0;
         *s0 = 0;
-        for c in value {
+        for c in value.iter_caps() {
             match c.index() {
                 0..=31 => {
                     *s0 |= c.bitmask() as u32;
@@ -125,16 +121,16 @@ pub fn set(tid: i32, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError>
 }
 
 pub fn drop(tid: i32, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
-    let mut caps = read(tid, cset)?;
-    if caps.remove(&cap) {
+    let mut caps: CapsBitFlags = read(tid, cset)?;
+    if caps.remove_cap(&cap) {
         set(tid, cset, &caps)?;
     };
     Ok(())
 }
 
 pub fn raise(tid: i32, cset: CapSet, cap: Capability) -> Result<(), CapsError> {
-    let mut caps = read(tid, cset)?;
-    if caps.insert(cap) {
+    let mut caps: CapsBitFlags = read(tid, cset)?;
+    if caps.insert_cap(cap) {
         set(tid, cset, &caps)?;
     };
     Ok(())

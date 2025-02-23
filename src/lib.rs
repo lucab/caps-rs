@@ -43,7 +43,7 @@ mod nr;
 
 use crate::errors::CapsError;
 
-pub use crate::caps::{Capability, CapsHashSet, all};
+pub use crate::caps::{Capability, CapsBitFlags, CapsHashSet, CapsList};
 
 /// Linux capabilities sets.
 ///
@@ -83,12 +83,37 @@ pub fn has_cap(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<bool, 
 /// Return current content of set `cset` for thread `tid`.
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot read Ambient or Bounding capabilities of other processes.
-pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
+pub fn read_caps<T: CapsList>(tid: Option<i32>, cset: CapSet) -> Result<T, CapsError> {
     let t = tid.unwrap_or(0);
     match cset {
         CapSet::Ambient if t == 0 => ambient::read(),
         CapSet::Bounding if t == 0 => bounding::read(),
         CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::read(t, cset),
+        _ => Err("operation not supported".into()),
+    }
+}
+
+/// Return all capabilities in a set for a thread.
+///
+/// Return current content of set `cset` for thread `tid`.
+/// If `tid` is `None`, this operates on current thread (tid=0).
+/// It cannot read Ambient or Bounding capabilities of other processes.
+#[deprecated(note = "please use `read_caps` instead")]
+pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
+    read_caps(tid, cset)
+}
+
+/// Set a capability set for a thread to a new value.
+///
+/// All and only capabilities in `value` will be set for set `cset` for thread `tid`.
+/// If `tid` is `None`, this operates on current thread (tid=0).
+/// It cannot manipulate Ambient set of other processes.
+/// Capabilities cannot be set in Bounding set.
+pub fn set_caps<T: CapsList>(tid: Option<i32>, cset: CapSet, value: &T) -> Result<(), CapsError> {
+    let t = tid.unwrap_or(0);
+    match cset {
+        CapSet::Ambient if t == 0 => ambient::set(value),
+        CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
         _ => Err("operation not supported".into()),
     }
 }
@@ -99,13 +124,9 @@ pub fn read(tid: Option<i32>, cset: CapSet) -> Result<CapsHashSet, CapsError> {
 /// If `tid` is `None`, this operates on current thread (tid=0).
 /// It cannot manipulate Ambient set of other processes.
 /// Capabilities cannot be set in Bounding set.
+#[deprecated(note = "please use `set_caps` instead")]
 pub fn set(tid: Option<i32>, cset: CapSet, value: &CapsHashSet) -> Result<(), CapsError> {
-    let t = tid.unwrap_or(0);
-    match cset {
-        CapSet::Ambient if t == 0 => ambient::set(value),
-        CapSet::Effective | CapSet::Inheritable | CapSet::Permitted => base::set(t, cset, value),
-        _ => Err("operation not supported".into()),
-    }
+    set_caps(tid, cset, value)
 }
 
 /// Clear all capabilities in a set for a thread.
@@ -153,6 +174,17 @@ pub fn drop(tid: Option<i32>, cset: CapSet, cap: Capability) -> Result<(), CapsE
     }
 }
 
+/// Return the set of all capabilities supported by this library.
+pub fn all_caps<T: CapsList>() -> T {
+    T::from_iter(caps::all_iter())
+}
+
+/// Return the set of all capabilities supported by this library.
+#[deprecated(note = "please use `all_caps` instead")]
+pub fn all() -> CapsHashSet {
+    all_caps()
+}
+
 /// Convert an informal capability name into a canonical form.
 ///
 /// This converts the input string to uppercase and ensures that it starts with
@@ -177,7 +209,7 @@ mod tests {
 
     #[test]
     fn test_all_roundtrip() {
-        let all = all();
+        let all: CapsHashSet = all_caps();
         assert!(all.len() > 0);
         for c in all {
             let name = c.to_string();
