@@ -1,6 +1,5 @@
 # caps
 
-[![Build Status](https://travis-ci.com/lucab/caps-rs.svg?branch=master)](https://travis-ci.com/lucab/caps-rs)
 [![crates.io](https://img.shields.io/crates/v/caps.svg)](https://crates.io/crates/caps)
 [![Documentation](https://docs.rs/caps/badge.svg)](https://docs.rs/caps)
 
