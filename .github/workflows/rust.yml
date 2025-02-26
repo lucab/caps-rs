@@ -25,10 +25,10 @@ jobs:
         with:
           toolchain: "stable"
           default: true
-      - name: cargo build
-        run: cargo build
-      - name: cargo test
-        run: cargo test
+      - name: cargo build --all-features
+        run: cargo build --all-features
+      - name: cargo test --all-features
+        run: cargo test --all-features
   tests-release-stable:
     name: "Tests (release), stable toolchain"
     runs-on: ubuntu-latest

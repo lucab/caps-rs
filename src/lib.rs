@@ -459,9 +459,23 @@ mod tests {
     #[test]
     #[cfg(feature = "serde_support")]
     fn test_serde() {
-        let p1 = Capability::from_str("CAP_CHOWN").unwrap();
-        let ser = serde_json::to_value(&p1).unwrap();
-        let deser: Capability = serde_json::from_value(ser).unwrap();
-        assert_eq!(deser, p1);
+        let input = "CAP_CHOWN";
+        // Serialization
+        {
+            let p1 = Capability::from_str(input).unwrap();
+            let ser = serde_json::to_value(&p1).unwrap();
+            let json_str = ser.as_str().unwrap();
+            assert_eq!(json_str, input);
+            let deser: Capability = serde_json::from_value(ser).unwrap();
+            assert_eq!(deser, p1);
+        }
+        // Deserialization
+        {
+            let json_input = format!(r#""{}""#, input);
+            let deser: Capability = serde_json::from_str(&json_input).unwrap();
+            let ser = serde_json::to_value(&deser).unwrap();
+            let json_str = ser.as_str().unwrap();
+            assert_eq!(json_str, input);
+        }
     }
 }
