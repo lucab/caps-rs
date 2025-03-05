@@ -16,7 +16,7 @@ let all = caps::runtime::procfs_all_supported(None)
     .unwrap_or_else(|_| caps::runtime::thread_all_supported());
 println!("Supported capabilities: {}", all.len());
 ```
-!*/
+*/
 
 use super::{ambient, CapSet, Capability, CapsHashSet};
 use crate::errors::CapsError;
