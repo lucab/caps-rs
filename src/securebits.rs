@@ -1,4 +1,4 @@
-//! Manipulate securebits flags
+//! Manipulate securebits flags.
 //!
 //! This module exposes methods to get and set per-thread securebits
 //! flags, which can be used to disable special handling of capabilities

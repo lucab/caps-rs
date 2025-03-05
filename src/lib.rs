@@ -24,7 +24,7 @@ fn manipulate_caps() -> ExResult<()> {
     Ok(())
 }
 ```
-!*/
+*/
 
 pub mod errors;
 pub mod runtime;
