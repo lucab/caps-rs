@@ -8,8 +8,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  # Minimum supported Rust version (MSRV)
-  ACTION_MSRV_TOOLCHAIN: 1.63.0
   # Pinned toolchain for linting
   ACTION_LINTS_TOOLCHAIN: 1.85.0
 
@@ -50,6 +48,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Extract MSRV
+        run: echo "ACTION_MSRV_TOOLCHAIN=$(grep 'rust-version' Cargo.toml | cut -d '"' -f2)" >> $GITHUB_ENV
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
