@@ -1,12 +1,11 @@
 use crate::errors::CapsError;
 use crate::nr;
-use crate::runtime;
 use crate::Capability;
 use std::io::Error;
 
 pub fn clear() -> Result<(), CapsError> {
     for c in super::all() {
-        if has_cap(c)? {
+        if has_cap(c).unwrap_or(false) {
             drop(c)?;
         }
     }
@@ -38,8 +37,8 @@ pub fn has_cap(cap: Capability) -> Result<bool, CapsError> {
 
 pub fn read() -> Result<super::CapsHashSet, CapsError> {
     let mut res = super::CapsHashSet::new();
-    for c in runtime::thread_all_supported() {
-        if has_cap(c)? {
+    for c in super::all() {
+        if has_cap(c).unwrap_or(false) {
             res.insert(c);
         }
     }
