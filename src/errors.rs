@@ -1,10 +1,7 @@
 //! Error handling.
 
-use thiserror::Error;
-
 /// Library errors.
-#[derive(Error, Debug)]
-#[error("caps error: {0}")]
+#[derive(Debug)]
 pub struct CapsError(pub(crate) String);
 
 impl From<&str> for CapsError {
@@ -16,5 +13,13 @@ impl From<&str> for CapsError {
 impl From<String> for CapsError {
     fn from(arg: String) -> Self {
         Self(arg)
+    }
+}
+
+impl std::error::Error for CapsError {}
+
+impl std::fmt::Display for CapsError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "caps error: {}", self.0)
     }
 }
