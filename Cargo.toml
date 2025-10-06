@@ -16,7 +16,6 @@ exclude = [
 
 [dependencies]
 libc = "^0.2"
-thiserror = "^1.0"
 serde = { version = "^1.0", features = ["derive"], optional = true}
 
 [features]
