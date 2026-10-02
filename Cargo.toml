@@ -32,3 +32,6 @@ pre-release-commit-message = "cargo: caps release {{version}}"
 sign-commit = true
 sign-tag = true
 tag-message = "caps {{version}}"
+
+[lints.rust]
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(target_arch, values("e2k"))'] }
