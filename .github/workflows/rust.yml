@@ -42,8 +42,8 @@ jobs:
         run: cargo build --release
       - name: cargo test (release)
         run: cargo test --release
-  tests-release-msrv:
-    name: "Tests (release), minimum supported toolchain"
+  check-msrv:
+    name: "Check minimum supported toolchain"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -55,10 +55,8 @@ jobs:
         with:
           toolchain: ${{ env['ACTION_MSRV_TOOLCHAIN']  }}
           default: true
-      - name: cargo build (release)
-        run: cargo build --release
-      - name: cargo test (release)
-        run: cargo test --release
+      - run: cargo check --all-features
+      - run: cargo build --all-features
   linting:
     name: "Lints, pinned toolchain"
     runs-on: ubuntu-latest
